@@ -92,7 +92,6 @@ button:hover {
 	background-color: #45a049;
 }
 
-* /
 	/* 입력 필드 스타일 */                                             
 input[type="text"], input[type="password"], input[type="email"] {
 	width: 80%; /* 부모 요소에 비례하여 100% 크기로 확장 */
