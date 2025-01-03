@@ -21,9 +21,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -211,6 +209,33 @@ public class AllWeatherService {
         return dailyForecast;
     }*/
 
+    /*public Map<String, Map<String, String>> getMergedWeatherData(
+            WeatherDto weatherDto, String regId, String tmFc, String regIdTemp) throws IOException {
+
+        Map<String, Map<String, String>> shortTermData = getShortTermForecast(weatherDto);
+        LongWeatherDto longWeatherForecast = getLongWeatherForecast(regId, tmFc);
+        Map<String, Map<String, String>> midLandData = convertLongWeatherDtoToMap(longWeatherForecast);
+        LongWeatherTemperatureDto longWeatherTemperature = getLongWeatherTemperature(regIdTemp, tmFc);
+        Map<String, Map<String, String>> midTemperatureData = convertLongWeatherTemperatureDtoToMap(longWeatherTemperature);
+
+        Map<String, Map<String, String>> dailyForecast = new TreeMap<>();
+
+        String lastShortTermDate = null;
+        for (String timeKey : shortTermData.keySet()) {
+            String date = timeKey.substring(0, 8);
+            lastShortTermDate = date;
+            dailyForecast.computeIfAbsent(date, k -> new HashMap<>()).putAll(shortTermData.get(timeKey));
+        }
+
+        if (lastShortTermDate != null) {
+            mergeForecastData(dailyForecast, midLandData, lastShortTermDate);
+            mergeForecastData(dailyForecast, midTemperatureData, lastShortTermDate);
+        }
+
+        log.info("병합된 데이터: {}", dailyForecast);
+        return dailyForecast;
+    }*/
+
     public Map<String, Map<String, String>> getMergedWeatherData(
             WeatherDto weatherDto, String regId, String tmFc, String regIdTemp) throws IOException {
 
@@ -238,22 +263,44 @@ public class AllWeatherService {
         return dailyForecast;
     }
 
+
     private void mergeForecastData(Map<String, Map<String, String>> dailyForecast,
                                    Map<String, Map<String, String>> additionalData, String lastShortTermDate) {
         for (String date : additionalData.keySet()) {
             if (date.compareTo(lastShortTermDate) <= 0) {
                 log.warn("중기 데이터가 단기 데이터 범위를 침범: {}", date);
-                continue;
+                continue;  // 중기 예보 데이터가 단기 예보의 범위를 넘어가면 건너뛰기
             }
             dailyForecast.computeIfAbsent(date, k -> new HashMap<>()).putAll(additionalData.get(date));
         }
     }
 
 
+    private Map<String, Map<String, String>> calculateDailyTemperatures(Map<String, Map<String, String>> shortTermData) {
+        Map<String, Map<String, String>> dailyTemperatureData = new HashMap<>();
+        Map<String, List<Double>> dailyTemps = new HashMap<>();
 
+        // TMP 데이터를 날짜별로 그룹화
+        shortTermData.forEach((timeKey, values) -> {
+            String date = timeKey.substring(0, 8); // YYYYMMDD 추출
+            if (values.containsKey("TMP")) {
+                double temp = Double.parseDouble(values.get("TMP"));
+                dailyTemps.computeIfAbsent(date, k -> new ArrayList<>()).add(temp);
+            }
+        });
 
+        // 날짜별로 최저/최고 기온 계산
+        dailyTemps.forEach((date, temps) -> {
+            double tMin = temps.stream().min(Double::compare).orElse(Double.NaN); // 최저 기온
+            double tMax = temps.stream().max(Double::compare).orElse(Double.NaN); // 최고 기온
+            Map<String, String> tempData = new HashMap<>();
+            tempData.put("TMN", String.valueOf(tMin));
+            tempData.put("TMX", String.valueOf(tMax));
+            dailyTemperatureData.put(date, tempData);
+        });
 
-
+        return dailyTemperatureData;
+    }
 
 
     /* *
@@ -263,56 +310,6 @@ public class AllWeatherService {
      * @throws IOException
      * */
     /*public Map<String, Map<String, String>> getShortTermForecast(WeatherDto weatherDto) throws IOException {
-        //UriComponents uriBuilder = UriComponentsBuilder.fromHttpUrl(apiUrl + "/getVilageFcst")
-        URI url = UriComponentsBuilder.fromHttpUrl(apiUrl + "/getVilageFcst")
-                .queryParam("serviceKey", apiKey)
-                .queryParam("dataType", "JSON")
-                .queryParam("numOfRows", 750)
-                .queryParam("pageNo", 1)
-                .queryParam("base_date", weatherDto.getBaseDate())
-                .queryParam("base_time", weatherDto.getBaseTime())
-                .queryParam("nx", weatherDto.getNx())
-                .queryParam("ny", weatherDto.getNy())
-                .build();
-
-        //String url = url.toUriString();
-        //String url = uriBuilder.toUriString();
-        log.info("Constructed URL: {}", url); // URL 로깅
-
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
-
-        String responseBody = response.getBody();
-        log.info("API 응답 데이터: {}", responseBody);
-
-        // 응답이 JSON이 아니면 상세 정보 출력
-        if (responseBody.trim().startsWith("<")) {
-            log.error("API 응답이 JSON이 아니라 XML/HTML입니다. 응답 데이터: {}", responseBody);
-            throw new RuntimeException("API 응답이 JSON이 아님: XML/HTML 데이터 반환");
-        }
-
-        // JSON 응답 파싱
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root;
-        try {
-            root = mapper.readTree(responseBody);
-        } catch (Exception e) {
-            log.error("JSON 파싱 오류. 응답 데이터: {}", responseBody);
-            throw new RuntimeException("JSON 파싱 오류: " + e.getMessage(), e);
-        }
-
-        JsonNode items = root.path("response").path("body").path("items").path("item");
-
-        Map<String, Map<String, String>> shortTermData = new HashMap<>();
-        for (JsonNode item : items) {
-            String category = item.get("category").asText();
-            String value = item.get("fcstValue").asText();
-            String timeKey = item.get("fcstDate").asText() + item.get("fcstTime").asText();
-            shortTermData.computeIfAbsent(timeKey, k -> new HashMap<>()).put(category, value);
-        }
-
-        return shortTermData;
-    }*/
-    public Map<String, Map<String, String>> getShortTermForecast(WeatherDto weatherDto) throws IOException {
         // URI 생성
         URI url = UriComponentsBuilder.fromHttpUrl(apiUrl + "/getVilageFcst")
                 .queryParam("serviceKey", apiKey)
@@ -361,6 +358,53 @@ public class AllWeatherService {
             String timeKey = item.get("fcstDate").asText() + item.get("fcstTime").asText();
             shortTermData.computeIfAbsent(timeKey, k -> new HashMap<>()).put(category, value);
         }
+
+        return shortTermData;
+    }*/
+    public Map<String, Map<String, String>> getShortTermForecast(WeatherDto weatherDto) throws IOException {
+        URI url = UriComponentsBuilder.fromHttpUrl(apiUrl + "/getVilageFcst")
+                .queryParam("serviceKey", apiKey)
+                .queryParam("dataType", "JSON")
+                .queryParam("numOfRows", 750)
+                .queryParam("pageNo", 1)
+                .queryParam("base_date", weatherDto.getBaseDate())
+                .queryParam("base_time", weatherDto.getBaseTime())
+                .queryParam("nx", weatherDto.getNx())
+                .queryParam("ny", weatherDto.getNy())
+                .build(true)
+                .toUri();
+
+        log.info("단기 예보 URL: {}", url);
+
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
+
+        String responseBody = response.getBody();
+        log.info("단기 예보 API 응답 데이터: {}", responseBody);
+
+        if (responseBody.trim().startsWith("<")) {
+            log.error("API 응답이 JSON이 아니라 XML/HTML입니다: {}", responseBody);
+            throw new RuntimeException("API 응답이 JSON이 아님: XML/HTML 데이터 반환");
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(responseBody);
+        JsonNode items = root.path("response").path("body").path("items").path("item");
+
+        Map<String, Map<String, String>> shortTermData = new HashMap<>();
+        for (JsonNode item : items) {
+            String category = item.get("category").asText();
+            String value = item.get("fcstValue").asText();
+            String timeKey = item.get("fcstDate").asText() + item.get("fcstTime").asText();
+            shortTermData.computeIfAbsent(timeKey, k -> new HashMap<>()).put(category, value);
+        }
+
+        // TMP 데이터를 기반으로 날짜별 TMN/TMX 계산
+        Map<String, Map<String, String>> dailyTemperatures = calculateDailyTemperatures(shortTermData);
+
+        // 단기 예보 데이터에 TMN/TMX 추가
+        dailyTemperatures.forEach((date, tempValues) -> {
+            shortTermData.computeIfAbsent(date, k -> new HashMap<>()).putAll(tempValues);
+        });
 
         return shortTermData;
     }
