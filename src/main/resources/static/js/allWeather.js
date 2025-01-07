@@ -110,6 +110,12 @@ document.addEventListener("DOMContentLoaded", () => {
 		return "images/weather/default.gif";
 	}
 
+	function getWindDirectionImage(direction) {
+		if (!direction) return { image: "images/weather/value/ARROW.png", rotation: 0 };
+		let deg = parseFloat(direction);
+		return { image: "images/weather/value/ARROW.png", rotation: deg };
+	}
+
 	// 날씨 데이터를 카드로 렌더링
 	function renderWeatherCards(combinedData) {
 		if (!weatherContainer) {
@@ -143,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			const skyValue = code_value("SKY", details.SKY, details.weatherForecast);
 			const morningRain = cleanRainProbability(details.rainMorning || details.POP || details.rainProbability || '0%');
 			const afternoonRain = cleanRainProbability(details.rainAfternoon || details.POP || details.rainProbability || '0%');
-
+			//const kn = code_value("WSD", details.wsd);
 			const morningIcon = getWeatherImage(skyValue, '0600', details.weatherForecast);
 			const afternoonIcon = getWeatherImage(skyValue, '1800', details.weatherForecast);
 
@@ -156,7 +162,10 @@ document.addEventListener("DOMContentLoaded", () => {
 				morningIcon: morningIcon,
 				afternoonIcon: afternoonIcon,
 				tempMorning: `${details.TMN || details.minTemperature || '--'}°`,
-				tempAfternoon: `${details.TMX || details.maxTemperature || '--'}°`
+				tempAfternoon: `${details.TMX || details.maxTemperature || '--'}°`,
+				WSD: details.WSD || "--", // 풍속
+				VEC: details.VEC || "--", // 풍향
+				REH: details.REH || "--" // 습도
 			};
 		});
 
@@ -185,6 +194,35 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
             `;
 			if (index <= 0) {
+				card.classList.add("today");
+				// 풍향 데이터 가져오기
+				const windDirectionData = getWindDirectionImage(data.VEC);
+				card.innerHTML = `
+				<div class="weather-today">
+					<div class="morning-str">
+						<span class="cq">오전</span>
+						<div class="morning-stt">
+							<img src="${data.morningIcon}" alt="Morning Weather Icon" class="icon">
+							<p>강수 확률: 🌧${data.morningRain}%</p>
+							<span class="on">최저: ${data.tempMorning}</span>
+						</div>
+					</div>
+					<div class="center">
+					<h3>${data.day}</h3>
+							<img src="${windDirectionData.image}" style="width: 80px; height: 80px; transform: rotate(${windDirectionData.rotation}deg); margin-left: 5px;" alt="Wind Direction">
+							<br>
+							<span>풍속: ${data.WSD} m/s</span><br>
+							<span>습도: ${data.REH} %</span>
+					</div>	
+					<div class="afternoon-str">
+						<span class="cq">오후</span>
+						<div class="afternoon-stt">
+							<img src="${data.afternoonIcon}" alt="Afternoon Weather Icon" class="icon">
+							<p>강수 확률: 🌧${data.afternoonRain}%</p>
+							<span class="on2">최고: ${data.tempAfternoon}</span>
+						</div>
+					</div>
+				</div>`;
 				row1.appendChild(card);
 				if (index === 0) {
 					const lineBreak = document.createElement("br");

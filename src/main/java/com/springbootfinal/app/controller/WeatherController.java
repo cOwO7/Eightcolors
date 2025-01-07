@@ -1,28 +1,23 @@
 package com.springbootfinal.app.controller;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Map;
-
+import com.springbootfinal.app.domain.ResultDto;
+import com.springbootfinal.app.domain.WeatherDto;
+import com.springbootfinal.app.service.WeatherService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.springbootfinal.app.domain.LongWeatherDto;
-import com.springbootfinal.app.domain.ResultDto;
-import com.springbootfinal.app.domain.WeatherDto;
-import com.springbootfinal.app.service.WeatherService;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,40 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 public class WeatherController {
 
 	private final WeatherService weatherService;
-
-	/* *
-	 * 단기&중기 예보
-	 * @param baseDate, baseTime, nx, ny, regId, tmFc
-	 * @param model
-	 * @return weatherResult
-	 * */
-	/*@PostMapping("/processWeather")
-	public String processWeatherData(
-			@RequestParam String baseDate,
-			@RequestParam String baseTime,
-			@RequestParam Integer nx,
-			@RequestParam Integer ny,
-			@RequestParam String regId,
-			@RequestParam String tmFc,
-			Model model
-	) {
-		try {
-			// WeatherDto 객체 생성
-			WeatherDto weatherDto = new WeatherDto(baseDate, baseTime, nx, ny);
-
-			// 병합된 날씨 데이터 가져오기
-			Map<String, Map<String, Map<String, String>>> mergedData =
-					weatherService.getAllMergedWeatherData(weatherDto, regId, tmFc);
-
-			// 모델에 데이터 추가
-			model.addAttribute("weatherData", mergedData);
-			return "weatherResult"; // 결과를 보여줄 Thymeleaf 템플릿 이름
-		} catch (IOException e) {
-			model.addAttribute("error", "Error fetching weather data: " + e.getMessage());
-			return "error"; // 에러 페이지 템플릿 이름
-		}
-	}*/
-
 
 	/* *
 	 * 오늘의 날씨 페이지

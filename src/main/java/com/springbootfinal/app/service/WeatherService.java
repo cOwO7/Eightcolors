@@ -3,10 +3,7 @@ package com.springbootfinal.app.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springbootfinal.app.domain.LongWeatherDto;
-import com.springbootfinal.app.domain.LongWeatherTemperatureDto;
 import com.springbootfinal.app.domain.WeatherDto;
-import com.springbootfinal.app.domain.WeatherForecast;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -24,7 +21,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -110,8 +106,8 @@ public class WeatherService {
 
 	    ResponseEntity<String> response = restTemplate.exchange(uriBuilder.toUriString(), HttpMethod.GET, null, String.class);
 
-	    log.info("초단기실황 API 호출 URL: {}", uriBuilder.toUriString());
-	    log.info("초단기실황 API 응답: {}", response.getBody());
+	   // log.info("초단기실황 API 호출 URL: {}", uriBuilder.toUriString());
+	    //log.info("초단기실황 API 응답: {}", response.getBody());
 	    
 	    if (!response.getStatusCode().is2xxSuccessful()) {
 	        throw new IOException("Ultra Srt Ncst, HTTP 상태를 가져오지 못했습니다: " + response.getStatusCode());
@@ -126,7 +122,7 @@ public class WeatherService {
 	        String category = item.get("category").asText();
 	        String value = item.get("obsrValue").asText(); // 실황은 obsrValue 사용
 	        
-	        log.info("카테고리: {}, 값: {}", category, value);
+	        //log.info("카테고리: {}, 값: {}", category, value);
 	        
 	        ultraSrtNcstData.put(category, value);
 	    }
@@ -154,7 +150,7 @@ public class WeatherService {
 		ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
 
 		// 응답 내용 로깅
-		log.info("API 응답: {}", response.getBody());
+		//log.info("API 응답: {}", response.getBody());
 
 		// 응답 내용 반환
 		return response.getBody();
@@ -181,7 +177,7 @@ public class WeatherService {
 	    }
 
 	    // 응답 내용 로깅 (디버깅을 위한 출력)
-	    log.info("API 응답: {}", response.getBody());
+	    //log.info("API 응답: {}", response.getBody());
 
 	    // JSON 응답 파싱
 	    ObjectMapper mapper = new ObjectMapper();
@@ -263,54 +259,4 @@ public class WeatherService {
 
 	    return forecastData;
 	}
-
-	/*// 중기예보랑도 병합
-	public Map<String, Map<String, Map<String, String>>> getAllMergedWeatherData(
-			WeatherDto weatherDto, String regId, String tmFc
-	) throws IOException {
-		// 단기예보 데이터 가져오기
-		Map<String, Map<String, String>> shortTermData = weatherService.getShortTermForecast(weatherDto);
-
-		// 중기 육상 예보 데이터 가져오기
-		LongWeatherDto longWeatherForecast = longWeatherService.getLongWeatherForecast(regId, tmFc);
-		Map<String, Map<String, String>> midLandData = convertLongWeatherDtoToMap(longWeatherForecast);
-
-		// 중기 기온 예보 데이터 가져오기
-		LongWeatherTemperatureDto longWeatherTemperature = longWeatherService.getLongWeatherTemperature(regId, tmFc);
-		Map<String, Map<String, String>> midTemperatureData = convertLongWeatherTemperatureDtoToMap(longWeatherTemperature);
-
-		// 데이터를 병합하여 반환
-		Map<String, Map<String, Map<String, String>>> mergedData = new HashMap<>();
-		mergedData.put("shortTerm", shortTermData);
-		mergedData.put("midLand", midLandData);
-		mergedData.put("midTemperature", midTemperatureData);
-
-		return mergedData;
-	}
-
-	private Map<String, Map<String, String>> convertLongWeatherDtoToMap(LongWeatherDto longWeatherForecast) {
-		Map<String, Map<String, String>> dataMap = new HashMap<>();
-		for (LongWeatherDto.Item item : longWeatherForecast.getResponse().getBody().getItems().getItem()) {
-			String timeKey = item.getFcstDate() + item.getFcstTime();
-			Map<String, String> attributes = new HashMap<>();
-			attributes.put("category", item.getCategory());
-			attributes.put("value", item.getFcstValue());
-			dataMap.put(timeKey, attributes);
-		}
-		return dataMap;
-	}
-
-	private Map<String, Map<String, String>> convertLongWeatherTemperatureDtoToMap(LongWeatherTemperatureDto longWeatherTemperature) {
-		Map<String, Map<String, String>> dataMap = new HashMap<>();
-		for (LongWeatherTemperatureDto.Item item : longWeatherTemperature.getResponse().getBody().getItems().getItem()) {
-			for (int i = 4; i <= 10; i++) {
-				String timeKey = item.getFcstDate(i) + item.getFcstTime(i);
-				Map<String, String> attributes = new HashMap<>();
-				attributes.put("minTemperature", item.getFcstValue(i));
-				attributes.put("maxTemperature", item.getFcstValue(i));
-				dataMap.put(timeKey, attributes);
-			}
-		}
-		return dataMap;
-	}*/
 }

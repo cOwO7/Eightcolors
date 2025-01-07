@@ -72,22 +72,22 @@ public class LongWeartherController {
 	        @RequestParam(name = "regId") String regId,
 	        @RequestParam(name = "tmFc") String tmFc,
 	        Model model) throws IOException {
-	    log.info("Received regId: {}", regId);
-	    log.info("Received tmFc: {}", tmFc);
+	    //log.info("Received regId: {}", regId);
+	    //log.info("Received tmFc: {}", tmFc);
 	    
 	    LongWeatherDto response = longWeatherService.getLongWeatherForecast(regId, tmFc);
 
 	    // 디버깅 로그 추가
 	    if (response == null) {
-	        log.error("LongWeatherDto is null. Check the API response or the service logic.");
+	        //log.error("LongWeatherDto is null. Check the API response or the service logic.");
 	        throw new RuntimeException("API 호출 실패: LongWeatherDto is null.");
 	    }
 	    if (response.getResponse() == null) {
-	        log.error("Response object is null. Check the API response format.");
+	        //log.error("Response object is null. Check the API response format.");
 	        throw new RuntimeException("API 호출 실패: Response object is null.");
 	    }
 	    if (response.getResponse().getBody() == null) {
-	        log.error("Body object is null. Check the API response structure.");
+	        //log.error("Body object is null. Check the API response structure.");
 	        throw new RuntimeException("API 호출 실패: Body object is null.");
 	    }
 
@@ -108,22 +108,22 @@ public class LongWeartherController {
 	        @RequestParam(name = "regIdTemp") String regIdTemp,
 	        @RequestParam(name = "tmFc") String tmFc,
 	        Model model) throws IOException {
-	    log.info("Received regId: {}", regIdTemp);
-	    log.info("Received tmFc: {}", tmFc);
+	   // log.info("Received regId: {}", regIdTemp);
+	   // log.info("Received tmFc: {}", tmFc);
 
 		LongWeatherTemperatureDto response = longWeatherService.getLongWeatherTemperature(regIdTemp, tmFc);
 
 	    // 디버깅 로그 추가
 	    if (response == null) {
-	        log.error("LongWeatherTemperatureDto is null. Check the API response or the service logic.");
+	        //log.error("LongWeatherTemperatureDto is null. Check the API response or the service logic.");
 	        throw new RuntimeException("API 호출 실패: LongWeatherTemperatureDto is null.");
 	    }
 	    if (response.getResponse() == null) {
-	        log.error("Response object is null. Check the API response format.");
+	        //log.error("Response object is null. Check the API response format.");
 	        throw new RuntimeException("API 호출 실패: Response object is null.");
 	    }
 	    if (response.getResponse().getBody() == null) {
-	        log.error("Body object is null. Check the API response structure.");
+	        //log.error("Body object is null. Check the API response structure.");
 	        throw new RuntimeException("API 호출 실패: Body object is null.");
 	    }
 

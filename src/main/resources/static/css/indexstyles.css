@@ -43,6 +43,10 @@
   padding-top: 20px;
 }
 
+.dropdown {
+	height: 80px;
+
+}
 
 /* 스크롤이 필요할 때 적용될 스타일 */
 .dropdown-menu {
@@ -90,6 +94,16 @@ button {
 
 button:hover {
 	background-color: #45a049;
+}
+
+#getWeatherButton {
+	width: auto;
+	height: 55px;
+}
+
+#addressBtn {
+	width: auto;
+	height: 55px;
 }
 
 	/* 입력 필드 스타일 */                                             

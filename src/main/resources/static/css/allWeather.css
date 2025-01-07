@@ -1,9 +1,23 @@
 @charset "UTF-8";
 /* 전체 카드 레이아웃 */
+
 .weather {
 	display: flex;
 	justify-content: space-around;
 	margin: 10px 0;
+	width: 100%;
+}
+
+.weather-today {
+	display: flex;
+	justify-content: space-around;
+	margin: 10px 0;
+	width: 100%;
+}
+.weather-today div {
+	flex: 1;
+	text-align: center;
+	padding: 20px;
 }
 
 /* 오전/오후 정보 */
@@ -16,8 +30,8 @@
 
 /* 날씨 아이콘 */
 .icon {
-	width: 40px;
-	height: 40px;
+	width: 50px;
+	height: 50px;
 	margin: 5px 0;
 }
 
@@ -88,8 +102,9 @@
 	background-color: #45a049;
 }
 
-.row {
+.row, .row1, .row2, .row3 {
 	display: flex;
+	padding: 5px;
 	flex-direction: row;
 	justify-content: center;
 	gap: 10px;
@@ -99,7 +114,7 @@
 
 .day-card {
 	flex: 1;
-	max-width: 150px;
+	max-width: 100%;
 	text-align: center;
 	background-color: #f9f9f9;
 	border: 1px solid #ddd;
@@ -112,11 +127,84 @@
 	margin: 5px 0;
 }
 
+/* today개별 스타일링 */
 .today {
 	background-color: rgba(19, 150, 229, 0.67) !important; /* 오늘 카드를 강조 */
 	color: #ffffff !important;
 	font-weight: bold !important;
+	width: 100% !important;
+	height: auto !important;
+	display: flex;
+	align-items: end;
+	justify-content: space-between;
+	/*padding: 20px;*/
+	border-radius: 8px;
+	box-sizing: border-box;
+	/*margin-bottom: 15px;*/
 }
+
+.today h3 {
+	color: #6a0dad;
+	font-size: 30px;
+	font-weight: bold;
+	text-shadow:
+			-1px -1px 1px rgba(255, 255, 173, 0.5), /* 왼쪽 위 */
+			1px -1px 1px rgba(106, 255, 255, 0.487), /* 오른쪽 위 */
+			-1px  1px 1px rgba(255, 13, 255, 0.471), /* 왼쪽 아래 */
+			1px  1px 1px rgba(255, 255, 255, 0.4412); /* 오른쪽 아래 */
+}
+
+.today .weather {
+	display: flex; /* 가로 정렬 */
+	align-items: center; /* 세로 정렬 */
+	width: 100%; /* 내부 요소를 가로로 배치 */
+	justify-content: space-evenly; /* 요소 간 간격 균등 */
+}
+
+.center {
+	height: 100%;
+	width: 100%;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	font-size: 15px;
+}
+
+.morning-str, .afternoon-str {
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+}
+.morning-stt, .afternoon-stt {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+}
+
+.morning-stt .icon, .afternoon-stt .icon {
+	width: 80px;
+	height: 80px;
+	margin: 15px 0;
+}
+
+.cq {
+	font-size: 16px; /* 텍스트 크기 */
+	font-weight: bold; /* 텍스트 굵기 */
+	margin-bottom: 5px; /* 이미지와의 간격 */
+}
+
+
+.morning img, .afternoon img {
+	width: 60px; /* 아이콘 크기 */
+	height: 60px;
+}
+
 
 .tomorrow {
 	background-color: rgba(112, 112, 112, 0.67) !important; /* 내일 카드를 강조 */

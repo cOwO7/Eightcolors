@@ -15,7 +15,4 @@ public class WeatherCoordinateService {
 	public WeatherCoordinate getCoordinatesByKorCode(String korCode) {
 	    return weatherCoordinateMapper.getCoordinatesByKorCode(korCode);
 	}
-
-
-
 }

@@ -8,33 +8,7 @@
 <meta http-equiv="X-UA-Compatible" content="ie=edge"> -->
 <title>이번주 날씨</title>
 <th:block layout:fragment="content">
-	<style>
-		#weatherContainer {
-			display: flex;
-			justify-content: space-around;
-			flex-wrap: wrap;
-			margin-top: 20px;
-		}
 
-		.day-card {
-			width: 120px;
-			padding: 10px;
-			margin: 5px;
-			border: 1px solid #ddd;
-			border-radius: 8px;
-			text-align: center;
-			background-color: #f9f9f9;
-		}
-
-		.day-card.today {
-			background-color: #ffe4b5;
-		}
-
-		.day-card img.icon {
-			width: 50px;
-			height: 50px;
-		}
-	</style>
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12 pt-5">
@@ -88,40 +62,43 @@
 														<!-- 도시 옵션은 JavaScript로 동적으로 변경 -->
 													</select>
 												</div>
+											</div>
 												<!-- 구/시 선택 -->
+											<div class="col-md-6">
 												<div class="mb-3">
 													<label for="district-selector" class="form-label">
 														구/시 선택</label>
 													<div class="dropdown">
-														<button class="btn btn-outline-primary dropdown-toggle w-100"
-																type="button" id="district-selector"
-																data-bs-toggle="dropdown" aria-expanded="false">
-															구/시를 선택하세요</button>
-														<ul class="dropdown-menu w-100"
-															aria-labelledby="district-selector" style="max-height: 200px; overflow-y: auto;">
+														<button class="btn btn-outline-primary dropdown-toggle w-100" type="button" id="district-selector" data-bs-toggle="dropdown" aria-expanded="false">
+															구/시를 선택하세요
+														</button>
+														<ul class="dropdown-menu w-100" aria-labelledby="district-selector" style="max-height: 200px; overflow-y: auto;">
 															<!-- 구/시 옵션은 JavaScript로 동적으로 변경 -->
 														</ul>
 													</div>
 												</div>
 											</div>
+										</div>
 											<!-- 우측 절반: 주소 입력란 및 현재 위치 -->
+										<div class="row">
 											<div class="col-md-6">
 												<!-- 주소 입력란 -->
-												<div class="mb-2">
+												<div class="mb-3">
 													<label for="town-selector" class="form-label">주소 검색</label>
 													<div class="d-flex">
 														<!-- input 필드 -->
-														<input type="text" id="address" value=""
-															   placeholder="검색 버튼을 눌러주세요." class="form-control me-2" style="flex: 1;">
+														<input type="text" id="address" value="" placeholder="검색 버튼을 눌러주세요." class="form-control me-2" style="flex: 1;">
 														<!-- 도시와 구/시만 표시하는 필드 -->
-														<input type="hidden" id="address-hidden" value=""
-															   placeholder="좌표 조회는 여기서" class="form-control me-2" style="flex: 1;">
+														<input type="hidden" id="address-hidden" value="" placeholder="좌표 조회는 여기서" class="form-control me-2" style="flex: 1;">
 														<!-- 버튼 -->
 														<button type="button" id="addressBtn" class="btn btn-outline-primary">
-															검색</button>
+															검색
+														</button>
 													</div>
 												</div>
+											</div>
 												<!-- 현재 위치 표시란 -->
+											<div class="col-md-6">
 												<div class="mb-3">
 													<label for="town-selector" class="form-label">현재 위치</label>
 													<div class="d-flex">
@@ -149,7 +126,7 @@
 							<tbody id="combinedWeatherTableBody"></tbody>
 							<!-- 테이블 데이터가 들어갈 위치 -->
 							<div id="weatherContainer" class="weather-container">
-								<div id="row1" class="row"></div>
+								<div id="row1" class="row1"></div>
 								<div id="row2" class="row"></div>
 								<div id="row3" class="row"></div>
 							</div>

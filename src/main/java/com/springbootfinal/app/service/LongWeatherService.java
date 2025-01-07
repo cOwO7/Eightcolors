@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springbootfinal.app.domain.LongWeatherDto;
 import com.springbootfinal.app.domain.LongWeatherTemperatureDto;
-import com.springbootfinal.app.domain.WeatherDto;
 import com.springbootfinal.app.mapper.LongWeatherMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +21,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @Slf4j
@@ -102,7 +99,7 @@ public class LongWeatherService<LongWeatherTemperatureItem, LongWeatherItem> {
                 throw new RuntimeException("API 호출 실패: 상태 코드 " + response.getStatusCode());
             }
             String responseBody = response.getBody();
-            log.info("API 응답 데이터: {}", responseBody);
+            //log.info("API 응답 데이터: {}", responseBody);
             headers = new HttpHeaders();
             headers.set("Accept", "application/json"); // JSON 응답을 명시적으로 요청
 
@@ -110,7 +107,7 @@ public class LongWeatherService<LongWeatherTemperatureItem, LongWeatherItem> {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             if (responseBody.trim().startsWith("<")) {
-                log.error("XML 응답이 반환되었습니다. JSON으로 변환할 수 없습니다.");
+                //log.error("XML 응답이 반환되었습니다. JSON으로 변환할 수 없습니다.");
                 throw new RuntimeException("JSON 응답이 아님");
             }
 
@@ -139,7 +136,7 @@ public class LongWeatherService<LongWeatherTemperatureItem, LongWeatherItem> {
                 .build(true)
                 .toUri();
 
-        log.info("중기 기온 API URL: {}", url);
+        //log.info("중기 기온 API URL: {}", url);
 
         ResponseEntity<String> response;
         try {
@@ -159,15 +156,15 @@ public class LongWeatherService<LongWeatherTemperatureItem, LongWeatherItem> {
             }
 
             String responseBody = response.getBody();
-            log.info("API 응답 데이터: {}", responseBody);
+            //log.info("API 응답 데이터: {}", responseBody);
 
             if (responseBody == null) {
-                log.error("API 응답 본문이 null입니다.");
+                //log.error("API 응답 본문이 null입니다.");
                 throw new RuntimeException("API 호출 실패: 응답 본문이 null입니다.");
             }
 
             if (responseBody.trim().startsWith("<")) {
-                log.error("XML 응답이 반환되었습니다. JSON으로 변환할 수 없습니다.");
+                //log.error("XML 응답이 반환되었습니다. JSON으로 변환할 수 없습니다.");
                 throw new RuntimeException("JSON 응답이 아님");
             }
 
@@ -181,27 +178,4 @@ public class LongWeatherService<LongWeatherTemperatureItem, LongWeatherItem> {
         }
     }
 
-    /*// 10일 간의 날씨 데이터 병합
-    public Map<String, Map<String, String>> getMergedLongTermWeatherData(WeatherDto weatherDto, String regId, String tmFc) throws IOException {
-        Map<String, Map<String, String>> forecastData = weatherService.getWeatherGroupedByTime(weatherDto);
-
-        LongWeatherDto longWeatherForecast = getLongWeatherForecast(regId, tmFc);
-        LongWeatherTemperatureDto longWeatherTemperature = getLongWeatherTemperature(regId, tmFc);
-
-        // 중기 육상 예보 데이터 병합
-        for (LongWeatherDto.Item item : longWeatherForecast.getResponse().getBody().getItems().getItem()) {
-            String timeKey = item.getFcstDate() + item.getFcstTime();
-            forecastData.computeIfAbsent(timeKey, k -> new HashMap<>())
-                    .put(item.getCategory(), item.getFcstValue());
-        }
-
-        // 중기 기온 예보 데이터 병합
-        for (LongWeatherTemperatureDto.Item item : longWeatherTemperature.getResponse().getBody().getItems().getItem()) {
-            String timeKey = item.getFcstDate(i) + item.getFcstTime(i);
-            forecastData.computeIfAbsent(timeKey, k -> new HashMap<>())
-                    .put("temperature", item.getFcstValue(i));
-        }
-
-        return forecastData;
-    }*/
 }

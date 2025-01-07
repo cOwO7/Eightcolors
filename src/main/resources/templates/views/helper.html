@@ -186,9 +186,9 @@
                     row.innerHTML = `
             <td>${index + 1}</td>
             <td>${inquiry.title}</td>
+            <td>${inquiry.status === "answered" ? "답변 완료" : "대기 중"}</td>
             <td>${inquiry.name}</td>
             <td>${new Date(inquiry.inquiryDate).toLocaleString()}</td>
-            <td>${inquiry.status === "answered" ? "답변 완료" : "대기 중"}</td>
           `;
                     tbody.appendChild(row);
                   });
