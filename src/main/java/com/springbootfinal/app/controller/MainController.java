@@ -16,9 +16,11 @@ public class MainController {
 	@Autowired
 	private MainService mainService;
 
-	@GetMapping("/tarot")
-	public String tarot() {
-		return "tarot";
+
+
+	@GetMapping("/helper")
+	public String helper() {
+		return "views/helper";
 	}
 	
 	@GetMapping("/mypage")

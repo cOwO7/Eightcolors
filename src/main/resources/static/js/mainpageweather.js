@@ -20,213 +20,68 @@ function formatTime(date, time) {
 	return { date: formattedDate, time: formattedTime };
 }
 
-
-// 버튼을 수동으로 클릭시
-/*$(function() {
-	$(document).ready(function() {
-		// 버튼 클릭 시 날씨 데이터를 조회하는 기존 코드
-		$("#btn_weather").click(function() {
-			// 입력 값 유효성 검사
-			if ($("#nx").val() === "" || $("#ny").val() === "" || $("#baseDate").val() === "" || $("#baseTime").val() === "") {
-				alert("현재 위치를 입력 해주세요.");
-				return;
-			}
-
-			// 날씨 데이터 조회 함수
-			function getWeatherData() {
-				let serviceKey = "Gow%2FB%2BpvwKtRdRGfWEsPYdmR4X8u8LB342Dka9AaCg6XgZaYHeeOBcWH8aK9VT%2BfYSDLtu0o9k6WY%2BRp7E00ZA%3D%3D";
-				let nx = $("#nx").val();
-				let ny = $("#ny").val();
-				let baseDate = $("#baseDate").val();
-				let baseTime = $("#baseTime").val();
-				let pageNo = 1;
-				let numOfRows = 100;
-				let dataType = "JSON";
-
-				// 경도와 위도 값 정수형으로 변환
-				let longitudeNum = Math.floor(parseFloat($("#longitudeNum").val()));  // 경도
-				let latitudeNum = Math.floor(parseFloat($("#latitudeNum").val()));   // 위도
-
-				// 기상청 API URL 동적 생성
-				let apiUrl = `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${serviceKey}&pageNo=${pageNo}&numOfRows=${numOfRows}&dataType=${dataType}&base_date=${baseDate}&base_time=${baseTime}&nx=${nx}&ny=${ny}`;
-				//console.log("API 호출 URL:", apiUrl);
-
-				// 일출/일몰 정보 API 호출 (위도, 경도를 이용)
-				let sunriseSunsetApiUrl = `http://apis.data.go.kr/B090041/openapi/service/RiseSetInfoService/getLCRiseSetInfo?longitude=${longitudeNum}&latitude=${latitudeNum}&locdate=${baseDate}&dnYn=N&ServiceKey=${serviceKey}`;
-				//console.log("일출/일몰 정보 API 호출 URL:", sunriseSunsetApiUrl);
-
-				// 일출/일몰 API 호출
-				$.ajax({
-					url: sunriseSunsetApiUrl,
-					type: "GET",
-					dataType: "json",
-					success: function(response) {
-						console.log("일출/일몰 정보 응답:", response);
-
-						// 일출과 일몰 정보 초기화
-						let sunrise = "";
-						let sunset = "";
-
-						if (response.response.header.resultCode === "00" && response.response.body.items.item) {
-							sunrise = response.response.body.items.item.sunrise.trim(); // 일출 시간
-							sunset = response.response.body.items.item.sunset.trim(); // 일몰 시간
-						}
-
-						// 일출/일몰 정보가 없을 경우 알림
-						if (!sunrise || !sunset) {
-							alert("일출/일몰 정보가 없거나 잘못된 응답이 왔습니다.");
-						}
-
-						// 날씨 데이터 호출
-						$.ajax({
-							url: apiUrl,
-							type: "GET",
-							dataType: "json",
-							success: function(response) {
-								console.log("API 응답:", response);
-
-								if (response.response.header.resultCode === "00") {
-									let items = response.response.body.items.item;
-									console.log("응답 받은 날씨 데이터:", items);
-
-									let resultTable = $("#main-resultTable tbody");
-									resultTable.empty(); // 기존 테이블 초기화
-
-									let weatherDataByTime = {};
-
-									// 시간별 데이터 정리
-									items.forEach(function(item) {
-										let timeKey = `${item.fcstDate} ${item.fcstTime}`;
-										if (!weatherDataByTime[timeKey]) {
-											weatherDataByTime[timeKey] = {
-												date: item.fcstDate,
-												time: item.fcstTime,
-												sky: "-",          // 하늘 상태 (예: 맑음, 구름 많음, 흐림 등)
-												pty: "-",          // 강수 형태 (예: 없음, 비, 눈, 비/눈, 빗방울 등)
-												temp: "-",         // 기온 (예: 20℃)
-												pcp: "-",          // 강수량 (예: 0mm)
-												sno: "-"           // 적설량 (예: 0cm)
-											};
-										}
-
-										// 각 카테고리별 데이터 처리
-										if (item.category === "PCP") {
-											let pcpValue = item.fcstValue;
-											if (pcpValue === "강수없음" || pcpValue === "0mm") {
-												pcpValue = "-";
-											}
-											weatherDataByTime[timeKey].pcp = pcpValue;
-										}
-
-										if (item.category === "TMP") {
-											weatherDataByTime[timeKey].temp = item.fcstValue || "-";
-										}
-										if (item.category === "SKY") {
-											weatherDataByTime[timeKey].sky = item.fcstValue ? code_value("SKY", item.fcstValue) : "-";
-										}
-										if (item.category === "PTY") {
-											weatherDataByTime[timeKey].pty = item.fcstValue || "-";
-										}
-										if (item.category === "SNO") {
-											let snoValue = item.fcstValue;
-											if (snoValue === "적설없음" || snoValue === "0cm") {
-												snoValue = "-";
-											}
-											weatherDataByTime[timeKey].sno = snoValue;
-										}
-									});
-
-									let count = 0;
-									for (let time in weatherDataByTime) {
-										let weather = weatherDataByTime[time];
-
-										if (count >= 3) break;
-
-										let formatted = formatTime(weather.date, weather.time);
-										let row = $("<tr></tr>");
-
-										// `fcstTime` 기준으로 낮/밤 구분
-										let skyLabel = weather.sky;
-										let weatherImg = getWeatherImage(weather.sky, weather.time);
-
-										row.append(`<td><img src="${weatherImg}" alt="weather icon" style="width: 50px; height: 50px; text-align: center;"/><br>${skyLabel}</td>`);
-										row.append(`<td><br>${weather.temp}℃</td>`);
-										row.append(`<td><br>${weather.pty}%</td>`);
-										row.append(`<td><br>${weather.pcp}<br>${weather.sno}</td>`);
-										resultTable.append(row);
-										count++;
-									}
-
-									$("#main-resultTable").show();
-								} else {
-									alert("예보 데이터가 없습니다.");
-								}
-							},
-							error: function(error) {
-								console.error("API 호출 오류:", error);
-								alert("API 호출 중 오류가 발생했습니다.");
-							},
-						});
-
-					},
-					error: function(error) {
-						console.error("일출/일몰 API 호출 오류:", error);
-						alert("일출/일몰 API 호출 중 오류가 발생했습니다.");
-					}
-				});
-			}
-			// 날씨 데이터를 조회
-			getWeatherData();
-		});
-	});
-
-	// 날씨 상태에 따른 이미지 반환 (날 vs 밤 구분)
-	function getWeatherImage(sky, fcstTime) {
-		let isNight = parseInt(fcstTime) >= 1800; // fcstTime이 1800 이상이면 밤
-		switch (sky) {
-			case "맑음":
-				return isNight ? "images/weather/맑음밤.gif" : "images/weather/맑음.gif";
-			case "구름 많음":
-				return isNight ? "images/weather/구름많음.gif" : "images/weather/구름많음.gif";
-			case "흐림":
-				return isNight ? "images/weather/흐림밤.gif" : "images/weather/흐림.gif";
-			case "비":
-				return "images/weather/비.gif";
-			case "눈":
-				return "images/weather/함박눈.gif";
-			default:
-				return "images/weather/default.gif";
-		}
-	}
-
-	// 날씨 코드 변환 함수
-	function code_value(category, code) {
-		let value = "-";
-		if (code) {
-			if (category === "SKY") {
-				if (code === "1") value = "맑음";
-				else if (code === "3") value = "구름 많음";
-				else if (code === "4") value = "흐림";
-			} else if (category === "PTY") {
-				if (code === "0") value = "없음";
-				else if (code === "1") value = "비";
-				else if (code === "2") value = "비/눈";
-				else if (code === "3") value = "눈";
-				else if (code === "5") value = "빗방울";
-				else if (code === "6") value = "빗방울눈날림";
-				else if (code === "7") value = "눈날림";
-			}
-		}
-		return value;
-	}
-});
-*/
-
 // 페이지가 로딩이 완료되면 자동 출력
 
-$(window).on('load', function() {
+/*$(window).on('load', function() {
 	// 페이지가 완전히 로드된 후 자동으로 날씨 데이터 조회
 	getWeatherData();  // 날씨 데이터를 직접 호출하는 함수로 대체
+});*/
+
+// 로딩 스피너 HTML 추가
+const loaderHtml = `
+    <div id="loader" style="display: none;">
+        <div class="spinner"></div>
+        <p>데이터를 로드 중입니다...</p>
+    </div>
+`;
+$("body").append(loaderHtml); // HTML 본문에 로딩 스피너 추가
+
+// 로딩 스피너 CSS 추가
+$("<style>")
+	.prop("type", "text/css")
+	.html(`
+        #loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        #loader .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #ddd;
+            border-top: 5px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px auto;
+        }
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    `)
+	.appendTo("head");
+
+// 페이지가 로딩이 완료되면 자동 출력
+$(window).on("load", function () {
+	// 로딩 스피너 표시
+	$("#loader").show();
+
+	// 페이지 로드 후 1초 대기
+	setTimeout(() => {
+		getWeatherData(); // 날씨 데이터를 직접 호출하는 함수로 대체
+		$("#loader").hide(); // 로딩 스피너 숨기기
+	}, 1000); // 1초 대기
 });
 
 // 날씨 데이터 조회 함수
@@ -236,6 +91,9 @@ function getWeatherData() {
 		alert("현재 위치를 입력 해주세요.");
 		return;
 	}
+
+	// 로딩 스피너 표시
+	$("#loader").show();
 
 	// 파라미터 설정
 	let serviceKey = "Gow%2FB%2BpvwKtRdRGfWEsPYdmR4X8u8LB342Dka9AaCg6XgZaYHeeOBcWH8aK9VT%2BfYSDLtu0o9k6WY%2BRp7E00ZA%3D%3D";
@@ -406,14 +264,15 @@ function getWeatherData() {
 				error: function(error) {
 					console.error("API 호출 오류:", error);
 					alert("API 호출 중 오류가 발생했습니다.");
+					$("#loader").hide();
 				},
 			});
-
 		},
 		error: function(error) {
 			console.error("일출/일몰 API 호출 오류:", error);
 			alert("일출/일몰 API 호출 중 오류가 발생했습니다.");
-		}
+			$("#loader").hide(); // 로딩 스피너 숨기기
+		},
 	});
 }
 

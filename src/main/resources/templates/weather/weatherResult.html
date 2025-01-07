@@ -53,25 +53,23 @@
 										<table width="85%" style="margin: auto; text-align: center;">
 											<tr>
 												<!-- <td>날짜(baseDate)</td> -->
-												<td><input width="auto" type="text" id="baseDate"
+												<td><input width="auto" type="hidden" id="baseDate"
 														   name="baseDate" th:value="${baseDate}" /></td>
 												<!-- <td>시간(baseTime)</td> -->
-												<td><input width="auto" type="text" id="baseTime"
+												<td><input width="auto" type="hidden" id="baseTime"
 														   name="baseTime" th:value="${baseTime}" /></td>
 											</tr>
 											<tr>
 												<!-- <td>예보지점 x값</td> -->
-												<td><input type="text" id="nx" name="nx"
-														   th:value="${gridX}" /></td>
+												<td><input type="hidden" id="nx" name="nx" th:value="${gridX}" /></td>
 												<!-- <td>예보지점 y값</td> -->
-												<td><input type="text" id="ny" name="ny"
-														   th:value="${gridY}" /></td>
+												<td><input type="hidden" id="ny" name="ny" th:value="${gridY}" /></td>
 											</tr>
 											<tr>
 												<!-- <td>위도(latitude)</td> -->
-												<td><input width="auto" type="text" id="latitudeNum" name="latitudeNum" th:value="${latitudeNum}" /></td>
+												<td><input width="auto" type="hidden" id="latitudeNum" name="latitudeNum" th:value="${latitudeNum}" /></td>
 												<!-- <td>경도(longitude)</td> -->
-												<td><input width="auto" type="text" id="longitudeNum" name="longitudeNum" th:value="${longitudeNum}" /></td>
+												<td><input width="auto" type="hidden" id="longitudeNum" name="longitudeNum" th:value="${longitudeNum}" /></td>
 											</tr>
 										</table>
 										<br />
@@ -137,11 +135,11 @@
 											</div>
 										</div>
 									<!--<label for="regId">육상 지역 코드:</label>-->
-									<input type="text" id="regId" name="regId" placeholder="예: 11B00000" required> <br>
+									<input type="hidden" id="regId" name="regId" placeholder="예: 11B00000" required> <br>
 									<!--<label for="regIdTemp">기온 지역 코드:</label>-->
-									<input type="text" id="regIdTemp" name="regIdTemp" placeholder="예: 11B10101" required>
+									<input type="hidden" id="regIdTemp" name="regIdTemp" placeholder="예: 11B10101" required>
 									<!--<label for="tmFc">발표 시각:</label>-->
-									<input type="text" id="tmFc" name="tmFc" placeholder="예: 202312230600" required>
+									<input type="hidden" id="tmFc" name="tmFc" placeholder="예: 202312230600" required>
 									<button type="submit" class="btn btn-outline-success">날씨 예보 조회</button>
 								</div>
 							</div>
@@ -151,7 +149,9 @@
 							<tbody id="combinedWeatherTableBody"></tbody>
 							<!-- 테이블 데이터가 들어갈 위치 -->
 							<div id="weatherContainer" class="weather-container">
-								<!-- Weather cards will be dynamically added here -->
+								<div id="row1" class="row"></div>
+								<div id="row2" class="row"></div>
+								<div id="row3" class="row"></div>
 							</div>
 						</table>
 					</div>
@@ -164,8 +164,8 @@
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 	<link href="bootstrap/bootstrap.min.css" rel="stylesheet">
 	<link href="/css/allWeather.css" rel="stylesheet" />
-	<link href="/css/longWeatherstyles.css" rel="stylesheet" />
-	<link href="/css/indexstyles.css" rel="stylesheet" />
+	<!--<link href="/css/longWeatherstyles.css" rel="stylesheet" />-->
+	<!--<link href="/css/indexstyles.css" rel="stylesheet" />-->
 	<script th:src="@{js/jquery-3.7.1.min.js}"></script>
 	<script th:src="@{js/weather.js}"></script>
 	<script th:src="@{js/allWeather.js}"></script>

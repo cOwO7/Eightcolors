@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.springbootfinal.app.mapper.InquiriesMapper" >
+	<!-- 문의 등록 -->
+	<insert id="insertInquiry" parameterType="com.springbootfinal.app.domain.InquiryDto">
+		INSERT INTO inquiries (user_no, title, content, inquiry_date, status)
+		VALUES (#{userNo}, #{title}, #{content}, NOW(), #{status})
+	</insert>
+
+	<!-- 문의 목록 조회 -->
+	<select id="getAllInquiries" resultType="com.springbootfinal.app.domain.InquiryDto">
+		SELECT inquiry_no, user_no, title, content, inquiry_date, status
+		FROM inquiries
+	</select>
+
+	<!-- 특정 문의 조회 -->
+	<select id="getInquiryById" parameterType="long" resultType="com.springbootfinal.app.domain.InquiryDto">
+		SELECT inquiry_no, user_no, title, content, inquiry_date, status
+		FROM inquiries
+		WHERE inquiry_no = #{inquiryNo}
+	</select>
+
+	<!-- 문의 상태 업데이트 -->
+	<update id="updateInquiryStatus" parameterType="map">
+		UPDATE inquiries
+		SET status = #{status}
+		WHERE inquiry_no = #{inquiryNo}
+	</update>
+</mapper>

@@ -13,9 +13,6 @@ public class LongWeatherDto {
 
 	private Response response;
 
-	public void setMessage(String 기본값_반환) {
-	}
-
 	@Data
 	public static class Response {
 		private Header header;

@@ -1,24 +1,22 @@
 package com.springbootfinal.app.ajax;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.springbootfinal.app.domain.WeatherCoordinate;
+import com.springbootfinal.app.service.WeatherCoordinateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.springbootfinal.app.domain.WeatherCoordinate;
-import com.springbootfinal.app.service.MemberService;
-import com.springbootfinal.app.service.WeatherCoordinateService;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class AjaxProcessController {
 
 	// 의존객체 주입
-	@Autowired
-	private MemberService memberService;
+	//@Autowired
+	//private MemberService memberService;
 	@Autowired
     private WeatherCoordinateService weatherCoordinateService;
 	
@@ -29,10 +27,10 @@ public class AjaxProcessController {
 			@RequestParam("id")String id, 
 			@RequestParam("pass")String pass) { 
 		
-		boolean result = memberService.memberPassCheck(id, pass);
+		//boolean result = memberService.memberPassCheck(id, pass);
 		
 		Map<String, Boolean> map = new HashMap<>();
-		map.put("result", result);
+		//map.put("result", result);
 		return map;
 	}
 	

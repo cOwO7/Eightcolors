@@ -2,6 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
 	const weatherForm = document.querySelector("form");
 	const weatherContainer = document.getElementById("weatherContainer");
 
+	// 로드 상태 플래그 추가
+	let isDateReady = false;
+
 	// baseDate와 baseTime을 설정하는 함수
 	function setBaseDateAndTime() {
 		const now = new Date();
@@ -28,6 +31,9 @@ document.addEventListener("DOMContentLoaded", () => {
 		const baseTimeInput = document.getElementById("baseTime");
 		if (baseDateInput) baseDateInput.value = baseDate;
 		if (baseTimeInput) baseTimeInput.value = baseTime;
+
+		// 페이지 로드 완료
+		isDateReady = true;
 	}
 
 	// 강수 확률 값 정리 함수
@@ -111,14 +117,28 @@ document.addEventListener("DOMContentLoaded", () => {
 			return;
 		}
 
-		weatherContainer.innerHTML = '';
+		const row1 = document.getElementById("row1");
+		const row2 = document.getElementById("row2");
+		const row3 = document.getElementById("row3");
+
+		row1.innerHTML = '';
+		row2.innerHTML = '';
+		row3.innerHTML = '';
+
+		//weatherContainer.innerHTML = '';
 
 		const today = new Date();
+		// 요일 배열
+		//const daysOfWeek = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+		const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
 		const options = { month: "numeric", day: "numeric" };
 
 		const weatherData = Object.entries(combinedData).map(([dateKey, details], index) => {
 			const futureDate = new Date(today);
 			futureDate.setDate(today.getDate() + index);
+
+			// 요일 계산
+			const dayOfWeek = daysOfWeek[futureDate.getDay()];
 
 			const skyValue = code_value("SKY", details.SKY, details.weatherForecast);
 			const morningRain = cleanRainProbability(details.rainMorning || details.POP || details.rainProbability || '0%');
@@ -128,7 +148,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			const afternoonIcon = getWeatherImage(skyValue, '1800', details.weatherForecast);
 
 			return {
-				day: index === 0 ? "오늘" : index === 1 ? "내일" : `D+${index}`,
+				//day: index === 0 ? "오늘" : index === 1 ? "내일" : `D+${index}`,
+				day: index === 0 ? "오늘" : index === 1 ? "내일" : `${dayOfWeek}`,
 				date: futureDate.toLocaleDateString("ko-KR", options),
 				morningRain: morningRain,
 				afternoonRain: afternoonRain,
@@ -143,6 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			const card = document.createElement("div");
 			card.className = "day-card";
 			if (index === 0) card.classList.add("today");
+			if (index === 1) card.classList.add("tomorrow")
 
 			card.innerHTML = `
                 <h3>${data.day}</h3>
@@ -151,25 +173,40 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="morning">
                         <span>오전</span>
                         <img src="${data.morningIcon}" alt="Morning Weather Icon" class="icon">
-                        <span>강수<br />확률: <br />${data.morningRain}</span>
+                        <span>강수<br />확률<br />🌧: ${data.morningRain}%</span>
+                        <span class="on">${data.tempMorning}</span>
                     </div>
                     <div class="afternoon">
                         <span>오후</span>
                         <img src="${data.afternoonIcon}" alt="Afternoon Weather Icon" class="icon">
-                        <span>강수<br />확률: <br /> ${data.afternoonRain}</span>
+                        <span>강수<br />확률<br />🌧: ${data.afternoonRain}%</span>
+                        <span class="on2">${data.tempAfternoon}</span>
                     </div>
                 </div>
-                <div class="temperature">
-                    <p>${data.tempMorning} / ${data.tempAfternoon}</p>
-                </div>
             `;
-			weatherContainer.appendChild(card);
+			if (index <= 0) {
+				row1.appendChild(card);
+				if (index === 0) {
+					const lineBreak = document.createElement("br");
+					row1.appendChild(lineBreak);
+				}
+			} else if (index >= 1 && index <= 5) {
+				row2.appendChild(card);
+			} else {
+				row3.appendChild(card);
+			}
+			//weatherContainer.appendChild(card);
 		});
 	}
 
 	// 폼 제출 이벤트 처리
 	weatherForm.addEventListener("submit", async (event) => {
 		event.preventDefault();
+
+		if (!isDateReady) {
+			console.log("페이지 로딩중...");
+			return;
+		}
 
 		const baseDate = document.getElementById("baseDate").value.trim();
 		const baseTime = document.getElementById("baseTime").value.trim();

@@ -41,8 +41,10 @@ public class WebConfig implements WebMvcConfigurer{
 	public void addViewControllers(ViewControllerRegistry registry) {
 		registry.addViewController("/writeForm").setViewName("views/writeForm");
 		registry.addViewController("/writeBoard").setViewName("views/writeForm");
+		// 단기예보
 		registry.addViewController("/weather").setViewName("weather/index");
-		registry.addViewController("/longWeather").setViewName("weather/longWeather");
+		//registry.addViewController("/longWeather").setViewName("weather/longWeather");
+		// 통합 예보(단기+중기)
 		registry.addViewController("/weather/form").setViewName("weather/weatherResult");
 		// 기본페이지 폼 뷰 전용 컨트롤러 설정
 		registry.addViewController("/").setViewName("main/main");
@@ -50,6 +52,8 @@ public class WebConfig implements WebMvcConfigurer{
 		registry.addViewController("/loginForm").setViewName("member/loginForm");
 		// 회원가입 폼
 		registry.addViewController("/joinForm").setViewName("member/memberJoinForm");
+		// 고객센터
+		registry.addViewController("/helper").setViewName("views/helper");
 	}
 	
 	@Override

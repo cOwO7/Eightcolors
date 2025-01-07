@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.springbootfinal.app.mapper.AnswersMapper" >
+    <!-- 답변 등록 -->
+    <insert id="insertAnswer" parameterType="com.springbootfinal.app.domain.AnswerDto">
+        INSERT INTO answers (inquiry_no, admin_user_no, content, answer_date)
+        VALUES (#{inquiryNo}, #{adminUserNo}, #{content}, NOW())
+    </insert>
+
+    <!-- 특정 문의에 대한 답변 조회 -->
+    <select id="getAnswerByInquiryId" parameterType="long" resultType="com.springbootfinal.app.domain.AnswerDto">
+        SELECT answer_no, inquiry_no, admin_user_no, content, answer_date
+        FROM answers
+        WHERE inquiry_no = #{inquiryNo}
+    </select>
+</mapper>

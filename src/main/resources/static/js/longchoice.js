@@ -447,37 +447,29 @@ document.addEventListener("DOMContentLoaded", function () {
 	let month = String(now.getMonth() + 1).padStart(2, '0');  // 월은 0부터 시작하므로 +1
 	let date = String(now.getDate()).padStart(2, '0');
 	let hours = now.getHours();
-	let minutes = now.getMinutes();
 
 	// 조회 시간 (0600 or 1800) 계산
 	let forecastTime = "";
 	let forecastDate = "";
 
 	if (hours < 6) {
-		// 현재 시간이 06:00 이전이면 1800시로 조회
 		forecastTime = "1800";
-		forecastDate = `${year}${month}${date}`; // 오늘 날짜
+		forecastDate = `${year}${month}${date}`;
 	} else if (hours >= 6 && hours < 18) {
-		// 현재 시간이 06:00 이상 18:00 미만이면 0600시로 조회
 		forecastTime = "0600";
-		forecastDate = `${year}${month}${date}`; // 오늘 날짜
+		forecastDate = `${year}${month}${date}`;
 	} else if (hours >= 18 && hours < 24) {
-		// 현재 시간이 18:00 이상 24:00 미만이면 1800시로 조회
 		forecastTime = "1800";
-		forecastDate = `${year}${month}${date}`; // 오늘 날짜
-	} else {
-		// 24시 이후 (자정 넘었을 때) 처리
-		forecastTime = "1800";
-		forecastDate = `${year}${month}${date}`; // 오늘 날짜의 마지막 조회 시간 18:00
+		forecastDate = `${year}${month}${date}`;
 	}
 
 	// 날짜와 시간을 tmFc 필드에 넣기
 	const tmFcInput = document.getElementById("tmFc");
-	const tmFc1Input = document.getElementById("tmFc1");
-	tmFcInput.value = forecastDate + forecastTime;
-	tmFc1Input.value = forecastDate + forecastTime;
-
-	console.log("예보 조회 날짜와 시간:", forecastDate + forecastTime);
+	if (tmFcInput) {
+		tmFcInput.value = forecastDate + forecastTime;
+	} else {
+		console.error("tmFc input field is not found.");
+	}
 });
 
 // 도시 선택 시 중기 지역코드 업데이트
@@ -487,36 +479,43 @@ document.addEventListener("DOMContentLoaded", function () {
 	const regIdTempInput = document.getElementById("regIdTemp");
 	const citySelector = document.getElementById("city-selector");
 
-	// 도시 선택 이벤트에서 city를 설정한 후 regId와 regIdTemp를 업데이트합니다.
-	citySelector.addEventListener("change", function(event) {
+	if (!regIdInput || !regIdTempInput || !citySelector) {
+		console.error("Required elements (regId, regIdTemp, city-selector) are missing.");
+		return;
+	}
+
+	// 도시 선택 이벤트
+	citySelector.addEventListener("change", function (event) {
 		const selectedCity = event.target.value.trim(); // 선택된 도시 이름
-		console.log("선택된 도시:", selectedCity);
-
-		if (locations[selectedCity]) {
-			const regCode = locations[selectedCity]?.reg_code || {};
-			console.log("도시의 regCode:", regCode);
-
-			// Input 필드 값 설정
-			regIdInput.value = regCode.regId || "";
-			regIdTempInput.value = regCode.regIdTemp || "";
-
-			// 값 설정 후 확인
-			console.log("regIdInput 값 설정됨:", regIdInput.value);
-			console.log("regIdTempInput 값 설정됨:", regIdTempInput.value);
-
-			// 렌더링 강제 트리거
-			regIdInput.dispatchEvent(new Event("change"));
-			regIdTempInput.dispatchEvent(new Event("change"));
-		} else {
+		if (!locations[selectedCity]) {
 			console.error("해당 도시 데이터가 없습니다:", selectedCity);
+			return;
 		}
+
+		const regCode = locations[selectedCity]?.reg_code || {};
+
+		// Input 필드 값 설정
+		regIdInput.value = regCode.regId || "";
+		regIdTempInput.value = regCode.regIdTemp || "";
+
+		// 렌더링 강제 트리거
+		regIdInput.dispatchEvent(new Event("change"));
+		regIdTempInput.dispatchEvent(new Event("change"));
+
+		updateDistricts(selectedCity); // 구/시 목록 업데이트
 	});
 });
 
-document.addEventListener("DOMContentLoaded", function() {
+// 도시 목록을 업데이트
+document.addEventListener("DOMContentLoaded", function () {
 	const citySelector = document.getElementById("city-selector");
 
-	// 도시 목록을 동적으로 추가하는 함수
+	if (!citySelector) {
+		console.error("city-selector element is not found.");
+		return;
+	}
+
+	// 도시 목록 업데이트
 	function updateCityList() {
 		citySelector.innerHTML = "<option value=''>도시를 선택하세요</option>"; // 기본 옵션 추가
 
@@ -529,117 +528,73 @@ document.addEventListener("DOMContentLoaded", function() {
 		}
 	}
 
-	// 도시 선택 이벤트 처리
-	citySelector.addEventListener("change", function(event) {
-		const selectedCity = event.target.value; // 선택된 도시
-		console.log("선택된 도시:", selectedCity);
-
-		if (selectedCity && locations[selectedCity]) {
-			const regCode = locations[selectedCity]?.reg_code || {};
-			console.log("도시의 regCode:", regCode);
-
-			// regId와 regIdTemp 업데이트
-			document.getElementById("regId").value = regCode.regId || "";
-			document.getElementById("regIdTemp").value = regCode.regIdTemp || "";
-
-			// 값 설정 후 확인
-			console.log("regIdInput 값 설정됨:", document.getElementById("regId").value);
-			console.log("regIdTempInput 값 설정됨:", document.getElementById("regIdTemp").value);
-
-			// 렌더링 강제 트리거
-			document.getElementById("regId").dispatchEvent(new Event("change"));
-			document.getElementById("regIdTemp").dispatchEvent(new Event("change"));
-		} else {
-			console.error("해당 도시 데이터가 없습니다:", selectedCity);
-		}
-
-		updateDistricts(selectedCity); // 도시가 선택되면 구/시 목록 업데이트
-	});
-
-	// 도시 목록 업데이트 함수 호출
+	// 도시 목록을 초기화
 	updateCityList();
 });
 
 // 선택된 city와 district에 따라 korCode를 가져오는 함수
 function getKorCode(city, district) {
-	console.log("getKorCode 호출: city = ", city, "district = ", district); // 디버깅용 로그
-
-	// locations 객체에서 city를 찾고, 그에 해당하는 kor_code 객체를 찾음
 	const cityData = locations[city];
 	if (!cityData) {
-		console.error("해당 도시를 찾을 수 없습니다.", city);
-		return null; // city가 없으면 null을 반환
+		console.error("해당 도시를 찾을 수 없습니다:", city);
+		return null;
 	}
 
-	// kor_code에서 해당 district의 korCode를 찾아 반환
 	const korCode = cityData.kor_code[district];
 	if (!korCode) {
-		console.error("해당 구/시의 korCode를 찾을 수 없습니다.", district);
-		return null; // korCode가 없으면 null을 반환
+		console.error("해당 구/시의 korCode를 찾을 수 없습니다:", district);
+		return null;
 	}
 
-	return korCode; // 찾은 korCode를 반환
+	return korCode;
 }
-
-
 
 // 좌표를 가져오는 함수 (korCode를 사용)
 function fetchCoordinates(city, district) {
 	const korCode = getKorCode(city, district);
-	console.log("fetchCoordinates 호출: korCode = ", korCode); // 디버깅용 로그
-
-	if (!korCode) {
-		console.error("korCode를 찾을 수 없습니다.");
-		return;
-	}
+	if (!korCode) return;
 
 	// korCode를 사용하여 좌표를 가져옵니다.
 	fetch(`/coordinates/${korCode}`)
-		.then(response => response.json())
+		.then(response => {
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+			return response.json();
+		})
 		.then(data => {
-			console.log("좌표 데이터:", data);
-			// nx, ny, latitude, longitude 값을 해당 input 필드에 넣어줍니다.
-			document.getElementById("nx").value = data.gridX;
-			document.getElementById("ny").value = data.gridY;
-			document.getElementById("latitudeNum").value = data.latitude;
-			document.getElementById("longitudeNum").value = data.longitude;
+			const nxInput = document.getElementById("nx");
+			const nyInput = document.getElementById("ny");
+			const latitudeInput = document.getElementById("latitudeNum");
+			const longitudeInput = document.getElementById("longitudeNum");
+
+			if (nxInput && nyInput && latitudeInput && longitudeInput) {
+				nxInput.value = data.gridX;
+				nyInput.value = data.gridY;
+				latitudeInput.value = data.latitude;
+				longitudeInput.value = data.longitude;
+			} else {
+				console.error("One or more input fields for coordinates are missing.");
+			}
 		})
 		.catch(error => {
-			console.error('좌표 데이터를 가져오는 데 실패했습니다:', error);
+			console.error("좌표 데이터를 가져오는 데 실패했습니다:", error);
 		});
 }
 
 // 도시 선택 시 구/시 목록을 동적으로 업데이트
-document.getElementById("city-selector").addEventListener("click", function() {
-	const cityDropdown = document.querySelector('#city-selector + .dropdown-menu');
-	cityDropdown.innerHTML = ""; // 기존 목록 지우기
-
-	// 도시 목록을 동적으로 추가
-	for (const city in locations) {
-		const listItem = document.createElement('li');
-		const link = document.createElement('a');
-		link.classList.add('dropdown-item');
-		link.href = "#";
-		link.textContent = city;
-		link.addEventListener('click', function() {
-			document.getElementById("city-selector").textContent = city;
-			updateDistricts(city); // 도시가 선택되면 구/시 목록을 업데이트
-		});
-		listItem.appendChild(link);
-		cityDropdown.appendChild(listItem);
-	}
-});
-
-// 구/시 목록을 업데이트
 function updateDistricts(city) {
-	console.log("updateDistricts 호출: city = ", city); // 디버깅용 로그
-
 	const districtDropdown = document.querySelector('#district-selector + .dropdown-menu');
+	if (!districtDropdown) {
+		console.error("district-selector dropdown-menu element is not found.");
+		return;
+	}
+
 	districtDropdown.innerHTML = ""; // 기존 목록 지우기
 
 	const cityData = locations[city];
 	if (!cityData) {
-		console.error("해당 도시를 찾을 수 없습니다.");
+		console.error("해당 도시를 찾을 수 없습니다:", city);
 		return;
 	}
 
@@ -650,15 +605,28 @@ function updateDistricts(city) {
 		link.classList.add('dropdown-item');
 		link.href = "#";
 		link.textContent = district;
-		link.addEventListener('click', function() {
-			document.getElementById("district-selector").textContent = district;
-			fetchCoordinates(city, district); // 구/시를 선택하면 좌표를 가져옴
+		link.addEventListener('click', function () {
+			const districtSelector = document.getElementById("district-selector");
+			if (districtSelector) {
+				districtSelector.textContent = district;
+				fetchCoordinates(city, district); // 구/시를 선택하면 좌표를 가져옴
+			} else {
+				console.error("district-selector element is not found.");
+			}
 		});
 		listItem.appendChild(link);
 		districtDropdown.appendChild(listItem);
 	});
 }
 
-
 // 초기화: 기본 도시 설정
-updateDistricts("강원특별자치도"); // 기본값으로 강원특별자치도를 선택
+document.addEventListener("DOMContentLoaded", function () {
+	const defaultCity = "강원특별자치도"; // 기본값
+	updateDistricts(defaultCity);
+
+	// 기본값으로 선택된 도시 설정
+	const citySelector = document.getElementById("city-selector");
+	if (citySelector) {
+		citySelector.value = "";
+	}
+});

@@ -87,3 +87,51 @@
 .submit-button:hover {
 	background-color: #45a049;
 }
+
+.row {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	gap: 10px;
+	width: 100%;
+	margin-bottom: 20px;
+}
+
+.day-card {
+	flex: 1;
+	max-width: 150px;
+	text-align: center;
+	background-color: #f9f9f9;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 10px;
+}
+
+.day-card img {
+	max-width: 50px;
+	margin: 5px 0;
+}
+
+.today {
+	background-color: rgba(19, 150, 229, 0.67) !important; /* 오늘 카드를 강조 */
+	color: #ffffff !important;
+	font-weight: bold !important;
+}
+
+.tomorrow {
+	background-color: rgba(112, 112, 112, 0.67) !important; /* 내일 카드를 강조 */
+	color: #ffffff !important;
+	font-weight: bold !important;
+}
+
+.on {
+	font-weight: bold;
+	font-size: 20px;
+	color: #0a53be;
+}
+
+.on2 {
+	font-weight: bold;
+	font-size: 20px;
+	color: #c00000;
+}
