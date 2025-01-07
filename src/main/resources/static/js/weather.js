@@ -98,12 +98,60 @@ function code_value(category, code) {
 
 $(function() {
 	$(document).ready(function() {
+		// 로딩 스피너 HTML 추가
+		const loaderHtml = `
+			<div id="loader" style="display: none;">
+				<div class="spinner"></div>
+				<p>데이터를 로드 중입니다...</p>
+			</div>
+		`;
+		$("body").append(loaderHtml); // HTML에 로딩 스피너 추가
+
+		// 로딩 스피너 CSS 추가
+		$("<style>")
+			.prop("type", "text/css")
+			.html(`
+				#loader {
+					position: fixed;
+					top: 50%;
+					left: 50%;
+					transform: translate(-50%, -50%);
+					z-index: 1000;
+					text-align: center;
+					background: rgba(255, 255, 255, 0.8);
+					padding: 20px;
+					border-radius: 10px;
+					box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+				}
+				#loader .spinner {
+					width: 50px;
+					height: 50px;
+					border: 5px solid #ddd;
+					border-top: 5px solid #007bff;
+					border-radius: 50%;
+					animation: spin 1s linear infinite;
+					margin: 0 auto 10px auto;
+				}
+				@keyframes spin {
+					from {
+						transform: rotate(0deg);
+					}
+					to {
+						transform: rotate(360deg);
+					}
+				}
+			`)
+			.appendTo("head");
+
 		$("#btn_weather").click(function() {
 			// 입력 값 유효성 검사
 			if ($("#nx").val() === "" || $("#ny").val() === "" || $("#baseDate").val() === "" || $("#baseTime").val() === "") {
 				alert("현재 위치를 입력 해주세요.");
 				return;
 			}
+
+			// 로딩 스피너 표시
+			$("#loader").show();
 
 			// 파라미터 설정
 			let serviceKey = "Gow%2FB%2BpvwKtRdRGfWEsPYdmR4X8u8LB342Dka9AaCg6XgZaYHeeOBcWH8aK9VT%2BfYSDLtu0o9k6WY%2BRp7E00ZA%3D%3D";
@@ -112,7 +160,7 @@ $(function() {
 			let baseDate = $("#baseDate").val();
 			let baseTime = $("#baseTime").val();
 			let pageNo = 1;
-			let numOfRows = 800;
+			let numOfRows = 579;
 			let dataType = "JSON";
 
 			// 경도와 위도 값 정수형으로 변환
@@ -247,7 +295,7 @@ $(function() {
 								for (let time in weatherDataByTime) {
 									let weather = weatherDataByTime[time];
 
-									//if (count >= 8) break;
+									if (count >= 48) break;
 
 									let formatted = formatTime(weather.date, weather.time);
 									let row = $("<tr></tr>");
@@ -300,11 +348,19 @@ $(function() {
 							console.error("API 호출 오류:", error);
 							alert("API 호출 중 오류가 발생했습니다.");
 						},
+						complete: function() {
+							// 로딩 스피너 숨기기
+							$("#loader").hide();
+						}
 					});
 				},
 				error: function(error) {
 					console.error("일출/일몰 API 호출 오류:", error);
 					alert("일출/일몰 API 호출 중 오류가 발생했습니다.");
+				},
+				complete: function() {
+					// 로딩 스피너 숨기기
+					$("#loader").hide();
 				}
 			});
 		});

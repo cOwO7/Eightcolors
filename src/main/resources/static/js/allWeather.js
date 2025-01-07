@@ -5,6 +5,50 @@ document.addEventListener("DOMContentLoaded", () => {
 	// 로드 상태 플래그 추가
 	let isDateReady = false;
 
+	// 로딩 스피너 HTML 추가
+	const loaderHtml = `
+        <div id="loader" style="display: none;">
+            <div class="spinner"></div>
+            <p>데이터를 로드 중입니다...</p>
+        </div>
+    `;
+	document.body.insertAdjacentHTML("beforeend", loaderHtml); // 로딩 스피너 HTML 추가
+
+	// 로딩 스피너 CSS 추가
+	const loaderStyle = document.createElement("style");
+	loaderStyle.innerHTML = `
+        #loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        #loader .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #ddd;
+            border-top: 5px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px auto;
+        }
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    `;
+	document.head.appendChild(loaderStyle); // 스타일 추가
+
 	// baseDate와 baseTime을 설정하는 함수
 	function setBaseDateAndTime() {
 		const now = new Date();
@@ -209,7 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					</div>
 					<div class="center">
 					<h3>${data.day}</h3>
-							<img src="${windDirectionData.image}" style="width: 80px; height: 80px; transform: rotate(${windDirectionData.rotation}deg); margin-left: 5px;" alt="Wind Direction">
+							<img src="${windDirectionData.image}" style="width: 80px; height: 100px; transform: rotate(${windDirectionData.rotation}deg); margin-left: 5px;" alt="Wind Direction">
 							<br>
 							<span>풍속: ${data.WSD} m/s</span><br>
 							<span>습도: ${data.REH} %</span>
@@ -254,6 +298,10 @@ document.addEventListener("DOMContentLoaded", () => {
 		const tmFc = document.getElementById("tmFc").value.trim();
 		const regIdTemp = document.getElementById("regIdTemp").value.trim();
 
+		// 로딩 스피너 표시
+		const loader = document.getElementById("loader");
+		loader.style.display = "block";
+
 		try {
 			const response = await fetch('/processAllWeather', {
 				method: 'POST',
@@ -273,6 +321,9 @@ document.addEventListener("DOMContentLoaded", () => {
 		} catch (error) {
 			console.error("데이터 가져오기 실패:", error);
 			alert("데이터를 가져오는 중 문제가 발생했습니다. 다시 시도해주세요.");
+		} finally {
+			// 로딩 스피너 숨기기
+			document.getElementById("loader").style.display = "none";
 		}
 	});
 
