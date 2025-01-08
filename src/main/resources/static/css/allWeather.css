@@ -1,6 +1,16 @@
 @charset "UTF-8";
 /* 전체 카드 레이아웃 */
 
+/* 도시와 구/시 선택을 위한 좌측 부분 */
+#addressChoice {
+	flex: 1; /* 50% 너비로 설정 */
+}
+
+/* 주소 입력란 및 현재 위치 입력을 위한 우측 부분 */
+#currentLocation {
+	flex: 1; /* 50% 너비로 설정 */
+}
+
 .weather {
 	display: flex;
 	justify-content: space-around;
@@ -144,14 +154,14 @@
 }
 
 .today h3 {
-	color: #6a0dad;
+	color: #E9E1D8;
 	font-size: 30px;
 	font-weight: bold;
 	text-shadow:
-			-1px -1px 1px rgba(255, 255, 173, 0.5), /* 왼쪽 위 */
-			1px -1px 1px rgba(106, 255, 255, 0.487), /* 오른쪽 위 */
-			-1px  1px 1px rgba(255, 13, 255, 0.471), /* 왼쪽 아래 */
-			1px  1px 1px rgba(255, 255, 255, 0.4412); /* 오른쪽 아래 */
+			-1px -1px 1px rgba(250, 235, 215), /* 왼쪽 위 */
+			1px -1px 1px rgba(233, 225, 216), /* 오른쪽 위 */
+			-1px  1px 1px rgba(249, 235, 218), /* 왼쪽 아래 */
+			1px  1px 1px rgba(237, 234, 227); /* 오른쪽 아래 */
 }
 
 .today .weather {

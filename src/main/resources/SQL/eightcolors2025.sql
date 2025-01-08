@@ -4,143 +4,215 @@ use eightcolors2025; -- 데이터베이스 접속
 
 -- 1. 관리자 계정 테이블
 CREATE TABLE IF NOT EXISTS admin_users (
-    admin_user_no BIGINT AUTO_INCREMENT PRIMARY KEY,            		   -- 관리자 번호 (PK)
-    admin_id VARCHAR(50) NOT NULL UNIQUE,                         		 -- 관리자 계정명 (로그인 ID)
-    admin_passwd VARCHAR(255) NOT NULL,                          		  -- 비밀번호 (암호화 저장)
-    admin_name VARCHAR(100) NOT NULL                               		-- 관리자 이름
+                                           admin_user_no BIGINT AUTO_INCREMENT PRIMARY KEY,            		   -- 관리자 번호 (PK)
+                                           admin_id VARCHAR(50) NOT NULL UNIQUE,                         		 -- 관리자 계정명 (로그인 ID)
+                                           admin_passwd VARCHAR(255) NOT NULL,                          		  -- 비밀번호 (암호화 저장)
+                                           admin_name VARCHAR(100) NOT NULL                               		-- 관리자 이름
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-select * from admin_users;
 
 -- 2. 회원가입 테이블
 CREATE TABLE IF NOT EXISTS users (
-    user_no BIGINT AUTO_INCREMENT PRIMARY KEY,                   		  -- 회원 번호 (PK)
-    id VARCHAR(100) NOT NULL UNIQUE,                           	 		  -- 일반 아이디
-    passwd VARCHAR(255) NOT NULL,                                			  -- 비밀번호
-    email VARCHAR(255),                                          			  -- 이메일
-    phone VARCHAR(100),                                         			   -- 휴대폰번호
-    phone_verfiy INT DEFAULT 0,                                 			   -- 전화번호 인증 여부
-    name VARCHAR(100),                                           			  -- 이름
-    zipcode VARCHAR(50),                                         			  -- 우편번호
-    address1 VARCHAR(255),                                      			   -- 주소
-    address2 VARCHAR(255),                                      			   -- 상세주소
-    loginType ENUM('local', 'google', 'kakao', 'naver') DEFAULT 'local', 		 -- 로그인 매개체
-    provider_id VARCHAR(255),                                     			 -- 소셜 로그인 제공자 ID
-    regdate DATETIME DEFAULT CURRENT_TIMESTAMP,                  		  -- 회원가입일
-    point INT DEFAULT 0                                         			   -- 포인트
+                                     user_no BIGINT AUTO_INCREMENT PRIMARY KEY,                   		  -- 회원 번호 (PK)
+                                     id VARCHAR(100) NOT NULL UNIQUE,                           	 		  -- 일반 아이디
+                                     passwd VARCHAR(255) NOT NULL,                                			  -- 비밀번호
+                                     email VARCHAR(255),                                          			  -- 이메일
+                                     phone VARCHAR(100),                                         			   -- 휴대폰번호
+                                     phone_verfiy INT DEFAULT 0,                                 			   -- 전화번호 인증 여부
+                                     name VARCHAR(100),                                           			  -- 이름
+                                     zipcode VARCHAR(50),                                         			  -- 우편번호
+                                     address1 VARCHAR(255),                                      			   -- 주소
+                                     address2 VARCHAR(255),                                      			   -- 상세주소
+                                     loginType ENUM('local', 'google', 'kakao', 'naver') DEFAULT 'local', 		 -- 로그인 매개체
+                                     provider_id VARCHAR(255),                                     			 -- 소셜 로그인 제공자 ID
+                                     regdate DATETIME DEFAULT CURRENT_TIMESTAMP,                  		  -- 회원가입일
+                                     point INT DEFAULT 0                                         			   -- 포인트
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-select * from users;
 
 -- 3. 숙소 상세페이지 테이블
 CREATE TABLE IF NOT EXISTS residence (
-    resid_no BIGINT AUTO_INCREMENT PRIMARY KEY,                    			-- 숙소 번호 (PK)
-    resid_name VARCHAR(255) NOT NULL,                            				  -- 숙소 이름
-    resid_description TEXT,                                     					   -- 숙소 상세 설명
-    resid_address VARCHAR(255),                                    				-- 숙소 주소
-    resid_type ENUM('resort', 'hotel', 'pension') NOT NULL,       			 -- 숙소 유형
-    checkin_date DATE,                                       				 	     -- 체크인 날짜
-    checkout_date DATE,                                           				 -- 체크아웃 날짜
-    total_price DECIMAL(10, 2),                                  				  -- 원가
-    discount_rate INT DEFAULT 0,                        					  -- 할인율
-    discounted_price DECIMAL(10, 2) AS (total_price * (1 - discount_rate / 100)) STORED, 	-- 할인된 가격
-    rating DECIMAL(2, 1),                                         				 -- 평균 평점
-    resid_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP        		      	   -- 등록일
+                                         resid_no BIGINT AUTO_INCREMENT PRIMARY KEY,                    			-- 숙소 번호 (PK)
+                                         resid_name VARCHAR(255) NOT NULL,                            				  -- 숙소 이름
+                                         resid_description TEXT,                                     					   -- 숙소 상세 설명
+                                         resid_address VARCHAR(255),                                    				-- 숙소 주소
+                                         resid_type ENUM('resort', 'hotel', 'pension') NOT NULL,       			 -- 숙소 유형
+                                         checkin_date DATE,                                       				 	     -- 체크인 날짜
+                                         checkout_date DATE,                                           				 -- 체크아웃 날짜
+                                         total_price DECIMAL(10, 2),                                  				  -- 원가
+                                         discount_rate INT DEFAULT 0,                        					  -- 할인율
+                                         discounted_price DECIMAL(10, 2) AS (total_price * (1 - discount_rate / 100)) STORED, 	-- 할인된 가격
+                                         rating DECIMAL(2, 1),                                         				 -- 평균 평점
+                                         resid_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP        		      	   -- 등록일
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-select * from residence;
 
 -- 4. 예약 페이지 테이블
 CREATE TABLE IF NOT EXISTS reservations (
-    pay_no BIGINT AUTO_INCREMENT PRIMARY KEY,                   		   -- 결제 번호 (PK)
-    user_no BIGINT NOT NULL,                                       				-- 회원 번호 (FK)
-    resid_no BIGINT NOT NULL,                                     			 -- 숙소 번호 (FK)
-    total_price DECIMAL(10, 2),                                   			 -- 가격
-    use_point INT DEFAULT 0,                                     			  -- 사용된 포인트
-    pay_date DATETIME DEFAULT CURRENT_TIMESTAMP,          		         -- 결제일자
-    FOREIGN KEY (user_no) REFERENCES users(user_no) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (resid_no) REFERENCES residence(resid_no) ON DELETE CASCADE ON UPDATE CASCADE
+                                            pay_no BIGINT AUTO_INCREMENT PRIMARY KEY,       				   -- 결제 번호 (PK)
+                                            user_no BIGINT NOT NULL,                        					   -- 회원 번호 (FK)
+                                            resid_no BIGINT NOT NULL,                        					  -- 숙소 번호 (FK)
+                                            total_price DECIMAL(10, 2),                    					    -- 가격
+                                            use_point INT DEFAULT 0,                       					    -- 사용된 포인트
+                                            pay_date DATETIME DEFAULT CURRENT_TIMESTAMP,   				    -- 결제일자
+                                            status ENUM('결제완료', '결제취소') DEFAULT '결제완료',         			  -- 결제 상태 (기본값: 결제완료)
+                                            FOREIGN KEY (user_no) REFERENCES users(user_no) ON DELETE CASCADE ON UPDATE CASCADE,
+                                            FOREIGN KEY (resid_no) REFERENCES residence(resid_no) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-select * from reservations;
 
 -- 5. 후기/댓글 테이블
 CREATE TABLE IF NOT EXISTS reviews (
-    review_no BIGINT AUTO_INCREMENT PRIMARY KEY,                 		  -- 리뷰 번호 (PK)
-    user_no BIGINT NOT NULL,                                      			 -- 회원 번호 (FK)
-    resid_no BIGINT NOT NULL,                                     			 -- 숙소 번호 (FK)
-    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),      		      -- 평점 (1~5)
-    review_comment TEXT,                                          			 -- 리뷰 내용
-    review_date DATETIME DEFAULT CURRENT_TIMESTAMP,              		  -- 작성일
-    FOREIGN KEY (user_no) REFERENCES users(user_no) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (resid_no) REFERENCES residence(resid_no) ON DELETE CASCADE ON UPDATE CASCADE
+                                       review_id BIGINT AUTO_INCREMENT PRIMARY KEY,            -- 리뷰 ID (PK)
+                                       resid_no BIGINT NOT NULL,                              			 -- 숙소 번호 (FK)
+                                       user_id BIGINT NOT NULL,                                			-- 작성자 ID
+                                       rating INT CHECK (rating BETWEEN 1 AND 5),            	  -- 평점 (1 ~ 5)
+                                       comment TEXT,                                         			  -- 후기 내용
+                                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,         -- 작성일
+                                       FOREIGN KEY (resid_no) REFERENCES residence(resid_no)   -- 숙소 테이블과 연결
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-select * from reviews;
+
 
 -- 6. 출석 로그 테이블
 CREATE TABLE IF NOT EXISTS attendance_logs (
-    log_no BIGINT AUTO_INCREMENT PRIMARY KEY,                      		-- 로그 번호 (PK)
-    user_no BIGINT NOT NULL,                                    			   -- 회원 번호 (FK)
-    provider_id VARCHAR(255),                                      			-- 소셜 로그인 제공자 ID
-    point_received INT NOT NULL,                              			     -- 지급된 포인트
-    check_date DATE NOT NULL,                                   			   -- 출석 체크 날짜
-    UNIQUE (user_no, check_date),                                 			 -- 같은 날 중복 출석 체크 방지
-    FOREIGN KEY (user_no) REFERENCES users(user_no) ON DELETE CASCADE ON UPDATE CASCADE
+                                               log_no BIGINT AUTO_INCREMENT PRIMARY KEY,                      		-- 로그 번호 (PK)
+                                               user_no BIGINT NOT NULL,                                    			   -- 회원 번호 (FK)
+                                               provider_id VARCHAR(255),                                      			-- 소셜 로그인 제공자 ID
+                                               point_received INT NOT NULL,                              			     -- 지급된 포인트
+                                               check_date DATE NOT NULL,                                   			   -- 출석 체크 날짜
+                                               UNIQUE (user_no, check_date),                                 			 -- 같은 날 중복 출석 체크 방지
+                                               FOREIGN KEY (user_no) REFERENCES users(user_no) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-select * from attendance_logs;
 
 -- 7. 숙소 사진 테이블
 CREATE TABLE IF NOT EXISTS property_photos (
-    photo_no BIGINT AUTO_INCREMENT PRIMARY KEY,                  		  -- 사진 ID (PK)
-    resid_no BIGINT NOT NULL,                                   			   -- 숙소 번호 (FK)
-    photo_url VARCHAR(255) NOT NULL,                            			   -- 사진 URL
-    FOREIGN KEY (resid_no) REFERENCES residence(resid_no) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-select * from property_photos;
+                                               photo_no BIGINT AUTO_INCREMENT PRIMARY KEY,                  		 	 -- 사진 ID (PK)
+                                               resid_no BIGINT NOT NULL,                                   			   	-- 숙소 번호 (FK)
+                                               thumbnailUrls VARCHAR(255) DEFAULT NULL,
+                                               photo_url01 VARCHAR(255) DEFAULT NULL,                            			   -- 사진 URL
+                                               photo_url02 VARCHAR(255) DEFAULT NULL,                             			   -- 사진 URL
+                                               photo_url03 VARCHAR(255) DEFAULT NULL,                            			   -- 사진 URL
+                                               photo_url04 VARCHAR(255) DEFAULT NULL,                            			   -- 사진 URL
+                                               photo_url05 VARCHAR(255) DEFAULT NULL,                             			   -- 사진 URL
+                                               photo_url06 VARCHAR(255) DEFAULT NULL,                            			   -- 사진 URL
+                                               photo_url07 VARCHAR(255) DEFAULT NULL,                            			   -- 사진 URL
+                                               photo_url08 VARCHAR(255) DEFAULT NULL,                            			   -- 사진 URL
+                                               photo_url09 VARCHAR(255) DEFAULT NULL,                            			   -- 사진 URL
+                                               photo_url10 VARCHAR(255) DEFAULT NULL,                            			   -- 사진 URL
+                                               FOREIGN KEY (resid_no) REFERENCES residence(resid_no) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
 
--- 8. 고객센터 문의 게시판 테이블
-CREATE TABLE IF NOT EXISTS inquiries (
-    inquiry_no BIGINT AUTO_INCREMENT PRIMARY KEY,                		  -- 문의 번호 (PK)
-    user_no BIGINT NOT NULL,                                      			 -- 회원 번호 (FK)
-    title VARCHAR(255) NOT NULL,                                 			  -- 제목
-    content TEXT NOT NULL,                                       			  -- 문의 내용
-    inquiry_date DATETIME DEFAULT CURRENT_TIMESTAMP,         		      -- 문의 작성일
-    status ENUM('pending', 'answered') DEFAULT 'pending',        		  -- 상태
-    FOREIGN KEY (user_no) REFERENCES users(user_no) ON DELETE CASCADE
+-- 8. 답변 테이블
+CREATE TABLE IF NOT EXISTS answers (
+                                       answer_no BIGINT AUTO_INCREMENT PRIMARY KEY,       	          		  -- 답변 번호 (PK)
+                                       inquiry_no BIGINT NOT NULL,                                 			   -- 문의 번호 (FK)
+                                       admin_user_no BIGINT NOT NULL,                        	   		     -- 관리자 번호 (FK)
+                                       content TEXT NOT NULL,                                     			    -- 답변 내용
+                                       answer_date DATETIME DEFAULT CURRENT_TIMESTAMP,           		     -- 답변 작성일
+                                       FOREIGN KEY (inquiry_no) REFERENCES inquiries(inquiry_no) ON DELETE CASCADE,
+                                       FOREIGN KEY (admin_user_no) REFERENCES admin_users(admin_user_no) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-select * from inquiries;
 
--- 9. 답변 테이블
-CREATE TABLE IF NOT EXISTS answers (		
-    answer_no BIGINT AUTO_INCREMENT PRIMARY KEY,       	          		  -- 답변 번호 (PK)
-    inquiry_no BIGINT NOT NULL,                                 			   -- 문의 번호 (FK)
-    admin_user_no BIGINT NOT NULL,                        	   		     -- 관리자 번호 (FK)
-    content TEXT NOT NULL,                                     			    -- 답변 내용
-    answer_date DATETIME DEFAULT CURRENT_TIMESTAMP,           		     -- 답변 작성일
-    FOREIGN KEY (inquiry_no) REFERENCES inquiries(inquiry_no) ON DELETE CASCADE,
-    FOREIGN KEY (admin_user_no) REFERENCES admin_users(admin_user_no) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-select * from answers;
-
--- 10. 공지사항 테이블
+-- 9. 공지사항 테이블
 CREATE TABLE IF NOT EXISTS notices (
-    notice_no BIGINT AUTO_INCREMENT PRIMARY KEY,               		    -- 공지사항 번호 (PK)
-    admin_user_no BIGINT NOT NULL,                            			     -- 관리자 번호 (FK)
-    title VARCHAR(255) NOT NULL,                             			      -- 공지사항 제목
-    content TEXT NOT NULL,                                       			  -- 공지사항 내용
-    notice_date DATETIME DEFAULT CURRENT_TIMESTAMP,         		       -- 작성일
-    is_active TINYINT(1) DEFAULT 1,                               			  -- 활성 여부 (1: 활성, 0: 비활성)
-    FOREIGN KEY (admin_user_no) REFERENCES admin_users(admin_user_no) ON DELETE CASCADE
+                                       notice_no BIGINT AUTO_INCREMENT PRIMARY KEY,               		    -- 공지사항 번호 (PK)
+                                       admin_user_no BIGINT NOT NULL,                            			     -- 관리자 번호 (FK)
+                                       title VARCHAR(255) NOT NULL,                             			      -- 공지사항 제목
+                                       content TEXT NOT NULL,                                       			  -- 공지사항 내용
+                                       notice_date DATETIME DEFAULT CURRENT_TIMESTAMP,         		       -- 작성일
+                                       is_active TINYINT(1) DEFAULT 1,                               			  -- 활성 여부 (1: 활성, 0: 비활성)
+                                       FOREIGN KEY (admin_user_no) REFERENCES admin_users(admin_user_no) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-select * from notices;
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+-- 트리거: 답변 작성 시 문의 상태 변경
+
+DELIMITER $$
+CREATE TRIGGER update_inquiry_status_after_answer
+    AFTER INSERT ON answers
+    FOR EACH ROW
+BEGIN
+    UPDATE inquiries
+    SET status = 'answered'
+    WHERE inquiry_no = NEW.inquiry_no;
+END $$
+DELIMITER ;
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+수정된 주의사항, 테이블 생성 순서, ERD 관계 요약은 아래와 같습니다.
+
+주의사항
+외래 키 참조 순서
+외래 키(Foreign Key)가 있는 테이블은 반드시 참조되는 테이블이 먼저 생성되어야 합니다.
+예: users 테이블이 먼저 생성된 후, 이를 참조하는 reservations, reviews 등이 생성되어야 합니다.
+
+외래 키 제약 조건
+
+ON DELETE CASCADE: 참조된 데이터가 삭제될 경우, 연관된 데이터도 자동으로 삭제됩니다.
+       ON UPDATE CASCADE: 참조된 데이터가 수정될 경우, 연관된 데이터도 자동으로 업데이트됩니다.
+              이 설정은 데이터의 무결성을 유지하고 수동으로 삭제나 수정 작업을 줄이기 위해 포함되었습니다.
+              인코딩
+              모든 테이블은 UTF-8(MB4) 설정으로 생성되었으며, 다국어 데이터를 저장할 수 있습니다.
+
+              트리거
+              answers 테이블에 답변이 작성되면 자동으로 inquiries 테이블의 상태(status)가 'answered'로 업데이트됩니다.
+              트리거를 사용할 때는 정확한 동작을 확인하기 위해 테스트 환경에서 검증하세요.
+
+              -----------------------------------------------------------------------------------------------------------------------------
+
+              테이블 생성 순서
+
+              1. admin_users: 관리자 계정 테이블, users: 회원가입 테이블
+
+
+              2. residence: 숙소 상세 정보 테이블
+
+
+              3. reservations: 예약 정보 테이블, reviews: 후기/댓글 테이블
+              attendance_logs: 출석 로그 테이블, property_photos: 숙소 사진 테이블
+
+              4. inquiries: 고객센터 문의 테이블, answers: 답변 테이블
+
+              -----------------------------------------------------------------------------------------------------------------------------
+
+              ERD 관계 요약
+
+              admin_users
+              admin_user_no → answers.admin_user_no (1:N 관계)
+              관리자 계정은 여러 답변을 작성할 수 있음.
+
+              users
+              user_no → reservations.user_no (1:N 관계)
+              한 회원은 여러 예약을 가질 수 있음.
+              user_no → reviews.user_no (1:N 관계)
+              한 회원은 여러 리뷰를 작성할 수 있음.
+              user_no → attendance_logs.user_no (1:N 관계)
+              한 회원은 여러 출석 로그를 가질 수 있음.
+              user_no → inquiries.user_no (1:N 관계)
+              한 회원은 여러 문의를 작성할 수 있음.
+
+              residence
+              resid_no → reservations.resid_no (1:N 관계)
+              한 숙소는 여러 예약 정보를 가질 수 있음.
+              resid_no → reviews.resid_no (1:N 관계)
+              한 숙소는 여러 리뷰를 받을 수 있음.
+              resid_no → property_photos.resid_no (1:N 관계)
+              한 숙소는 여러 사진을 가질 수 있음.
+
+              inquiries
+              inquiry_no → answers.inquiry_no (1:N 관계)
+              한 문의는 여러 답변을 가질 수 있음.
+
 
 -- 기상청 nx,ny 좌표 테이틀
-CREATE TABLE weather_coordinate (
-    kor_code VARCHAR(20) PRIMARY KEY,       -- 행정구역 코드 (예: kor1111000000)
-    area_name VARCHAR(100) NOT NULL,        -- 지역 이름 (예: 서울특별시 종로구)
-    grid_x INT NOT NULL,                    -- 격자 X 좌표 (nx)
-    grid_y INT NOT NULL,                    -- 격자 Y 좌표 (ny)
-    longitude DECIMAL(9,6) NOT NULL,        -- 경도 (소수점 6자리까지)
-    latitude DECIMAL(9,6) NOT NULL,         -- 위도 (소수점 6자리까지)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 데이터 생성 시각
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- 데이터 수정 시각
-);
+              CREATE TABLE weather_coordinate (
+              kor_code VARCHAR(20) PRIMARY KEY,       -- 행정구역 코드 (예: kor1111000000)
+              area_name VARCHAR(100) NOT NULL,        -- 지역 이름 (예: 서울특별시 종로구)
+              grid_x INT NOT NULL,                    -- 격자 X 좌표 (nx)
+              grid_y INT NOT NULL,                    -- 격자 Y 좌표 (ny)
+              longitude DECIMAL(9,6) NOT NULL,        -- 경도 (소수점 6자리까지)
+              latitude DECIMAL(9,6) NOT NULL,         -- 위도 (소수점 6자리까지)
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 데이터 생성 시각
+              updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- 데이터 수정 시각
+              );
 
 -- 서울
 -- 서울특별시 종로구
@@ -758,61 +830,61 @@ VALUES ('kor4794000000', '경상북도 울릉군', 127, 127, 130.0, 37.4667);
 
 -- 경상남도
 -- 경상남도 마산시
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4812500000', '경상남도 마산시', 89, 76, 128.0, 35.2100);
 -- 경상남도 창원시
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4813000000', '경상남도 창원시', 88, 78, 128.0, 35.2280);
 -- 경상남도 진주시
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4815000000', '경상남도 진주시', 90, 83, 128.0, 35.1810);
 -- 경상남도 김해시
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4817000000', '경상남도 김해시', 89, 80, 128.0, 35.2323);
 -- 경상남도 밀양시
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4819000000', '경상남도 밀양시', 91, 82, 128.0, 35.4855);
 -- 경상남도 통영시
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4820000000', '경상남도 통영시', 91, 70, 128.0, 34.8491);
 -- 경상남도 사천시
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4821000000', '경상남도 사천시', 93, 75, 128.0, 34.9701);
 -- 경상남도 진해시
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4823000000', '경상남도 진해시', 87, 77, 128.0, 35.1075);
 -- 경상남도 거제시
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4825000000', '경상남도 거제시', 94, 70, 128.0, 34.8813);
 -- 경상남도 양산시
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4826000000', '경상남도 양산시', 90, 79, 128.0, 35.3384);
 -- 경상남도 하동군
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4871000000', '경상남도 하동군', 95, 79, 128.0, 35.0997);
 -- 경상남도 거창군
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4872000000', '경상남도 거창군', 87, 84, 128.0, 35.5874);
 -- 경상남도 합천군
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4873000000', '경상남도 합천군', 88, 89, 128.0, 35.5637);
 -- 경상남도 창녕군
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4874000000', '경상남도 창녕군', 92, 88, 128.0, 35.2902);
 -- 경상남도 함안군
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4875000000', '경상남도 함안군', 90, 85, 128.0, 35.1983);
 -- 경상남도 산청군
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4876000000', '경상남도 산청군', 94, 85, 128.0, 35.3289);
 -- 경상남도 의령군
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4877000000', '경상남도 의령군', 90, 91, 128.0, 35.3450);
 -- 경상남도 남해군
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4878000000', '경상남도 남해군', 93, 68, 128.0, 34.8445);
 -- 경상남도 창원시 의창구
-INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude) 
+INSERT INTO weather_coordinate (kor_code, area_name, grid_x, grid_y, longitude, latitude)
 VALUES ('kor4812000000', '경상남도 창원시 의창구', 88, 77, 128.0, 35.2364);
 
 
